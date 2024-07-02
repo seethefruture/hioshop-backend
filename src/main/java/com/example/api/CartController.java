@@ -33,7 +33,7 @@ public class CartController {
      * @return
      */
     @PostMapping("/addAgain")
-    public ResponseEntity<?> addAgain(@RequestParam Long goodsId, @RequestParam Long productId, @RequestParam int number) {
+    public ResponseEntity<?> addAgain(@RequestParam String goodsId, @RequestParam String productId, @RequestParam int number) {
         cartService.addAgain(goodsId, productId, number);
         return ResponseEntity.ok("Added successfully");
     }
@@ -45,8 +45,8 @@ public class CartController {
      * @return
      */
     @PostMapping("/delete")
-    public ResponseEntity<?> delete(@RequestBody List<Long> productIds) {
-        Long userId = getLoginUserId(); // Implement this method to get the logged-in user ID.
+    public ResponseEntity<?> delete(@RequestBody List<String> productIds) {
+        String userId = getLoginUserId(); // Implement this method to get the logged-in user ID.
         if (CollUtil.isEmpty(productIds)) {
             return ResponseEntity.badRequest().body("删除出错");
         }
@@ -56,7 +56,7 @@ public class CartController {
 
     @GetMapping("/goodsCount")
     public ResponseEntity<?> getGoodsCount() {
-        Long userId = getLoginUserId();
+        String userId = getLoginUserId();
         List<Cart> cartData = cartService.getCarts(userId, false, null);
         cartService.updateFastCart(userId);
         JSONObject result = new JSONObject().fluentPut("cartTotal", new JSONObject().fluentPut("goodsCount", cartData.size()));
@@ -75,19 +75,19 @@ public class CartController {
     @GetMapping("/checkout")
     public ResponseEntity<?> checkout(@RequestParam("orderFrom") Long orderFrom,
                                       @RequestParam("type") Integer type,
-                                      @RequestParam("addressId") Long addressId,
+                                      @RequestParam("addressId") String addressId,
                                       @RequestParam("addType") Integer addType) {
-        Long userId = getLoginUserId(); // Implement this method to get the logged-in user ID.
+        String userId = getLoginUserId(); // Implement this method to get the logged-in user ID.
         return ResponseEntity.ok(cartService.checkout(userId, orderFrom, type, addressId, addType));
     }
 
     @GetMapping("/goodsList")
-    public List<Cart> getGoodsList(@RequestParam Long userId) {
+    public List<Cart> getGoodsList(@RequestParam String userId) {
         return cartService.getGoodsList(userId);
     }
 
     @GetMapping("/checkedGoodsList")
-    public List<Cart> getCheckedGoodsList(@RequestParam Long userId) {
+    public List<Cart> getCheckedGoodsList(@RequestParam String userId) {
         return cartService.getCheckedGoodsList(userId);
     }
 
@@ -98,13 +98,13 @@ public class CartController {
      * @return
      */
     @PostMapping("/clearBuyGoods")
-    public int clearBuyGoods(@RequestParam Long userId) {
+    public int clearBuyGoods(@RequestParam String userId) {
         return cartService.clearBuyGoods(userId);
     }
 
-    private Long getLoginUserId() {
+    private String getLoginUserId() {
         // Mock implementation to return a user ID.
         // Replace with actual logic to get the logged-in user's ID.
-        return 1L;
+        return "";
     }
 }

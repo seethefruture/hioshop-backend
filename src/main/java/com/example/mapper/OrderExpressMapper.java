@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface OrderExpressMapper {
 
-    OrderExpress findByOrderId(@Param("orderId") Long orderId);
+    OrderExpress findByOrderId(@Param("orderId") String orderId);
 
     void update(OrderExpress orderExpress);
 }

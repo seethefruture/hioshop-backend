@@ -15,21 +15,21 @@ public class FootprintController {
     private FootprintService footprintService;
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteFootprint(@RequestBody Map<String, Long> payload) {
-        Long footprintId = payload.get("footprintId");
-        Long userId = getUserIdFromSession(); // Implement your session handling logic here
+    public ResponseEntity<?> deleteFootprint(@RequestBody Map<String, String> payload) {
+        String footprintId = payload.get("footprintId");
+        String userId = getUserIdFromSession(); // Implement your session handling logic here
         footprintService.deleteFootprint(userId, footprintId);
         return ResponseEntity.ok("删除成功");
     }
 
     @GetMapping("/list")
     public ResponseEntity<?> listFootprints(@RequestParam int page, @RequestParam int size) {
-        Long userId = getUserIdFromSession(); // Implement your session handling logic here
+        String userId = getUserIdFromSession(); // Implement your session handling logic here
         return ResponseEntity.ok(footprintService.listFootprints(userId, page, size));
     }
 
     // Dummy method to simulate getting user ID from session (replace with actual logic)
-    private Long getUserIdFromSession() {
-        return 1L; // Replace with your session handling logic
+    private String getUserIdFromSession() {
+        return ""; // Replace with your session handling logic
     }
 }

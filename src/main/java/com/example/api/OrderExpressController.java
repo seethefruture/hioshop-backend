@@ -17,7 +17,7 @@ public class OrderExpressController {
     private OrderExpressService orderExpressService;
 
     @GetMapping("/express/{orderId}")
-    public ResponseEntity<OrderExpress> getLatestOrderExpress(@PathVariable Long orderId) {
+    public ResponseEntity<OrderExpress> getLatestOrderExpress(@PathVariable String orderId) {
         OrderExpress orderExpress = orderExpressService.getLatestOrderExpress(orderId);
         return ResponseEntity.ok(orderExpress);
     }

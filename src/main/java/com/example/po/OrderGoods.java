@@ -4,10 +4,10 @@ import lombok.Data;
 
 @Data
 public class OrderGoods {
-    private Long id;
-    private Long orderId;
-    private Long goodsId;
-    private Long productId;
+    private String id;
+    private String orderId;
+    private String goodsId;
+    private String productId;
     private Integer number;
     private String listPicUrl;
     private Double retailPrice;

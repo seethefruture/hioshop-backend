@@ -100,7 +100,7 @@ public class WeixinService {
         return "token";
     }
 
-    public void preWeixinPaya(Long orderId) {
+    public void preWeixinPaya(String orderId) {
         Order orderInfo = orderMapper.findById(orderId);
         if (orderInfo != null) {
             long currentTime = System.currentTimeMillis() / 1000;
@@ -113,7 +113,7 @@ public class WeixinService {
         }
     }
 
-    public Map<String, Object> preWeixinPay(Long orderId) throws Exception {
+    public Map<String, Object> preWeixinPay(String orderId) throws Exception {
         Order orderInfo = orderMapper.findById(orderId);
         if (orderInfo == null || orderInfo.getPayStatus() != 0) {
             throw new Exception("订单已取消或已支付");

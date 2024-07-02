@@ -1,5 +1,6 @@
 package com.example.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.example.po.Address;
 import com.example.po.Order;
@@ -26,7 +27,7 @@ public class OrderService {
     @Autowired
     private RegionMapper regionMapper;
 
-    public Map<String, Object> listAllOrders(Long userId, int showType, int page, int size) {
+    public Map<String, Object> listAllOrders(String userId, int showType, int page, int size) {
         List<Integer> status = getOrderStatus(showType);
         List<Order> orderList = orderMapper.findOrders(userId, false, status, page, size);
 
@@ -47,20 +48,19 @@ public class OrderService {
         return result;
     }
 
-    public Map<String, Object> countAction(Long userId, int showType) {
+    public Map<String, Object> countAction(String userId, int showType) {
         List<Integer> status = getOrderStatus(showType);
-        int isDelete = 0;
-        int allCount = orderMapper.countOrders(userId, isDelete, status);
+        int allCount = orderMapper.countOrders(userId, false, status);
         Map<String, Object> result = new HashMap<>();
         result.put("allCount", allCount);
         return result;
     }
 
-    public Map<String, Object> orderCountAction(Long userId) {
-        if (userId != 0) {
-            int toPay = orderMapper.countOrderByStatus(userId, 0, "101,801");
-            int toDelivery = orderMapper.countOrderByStatus(userId, 0, "300");
-            int toReceive = orderMapper.countOrderByStatus(userId, 0, "301");
+    public Map<String, Object> orderCountAction(String userId) {
+        if (StrUtil.isNotEmpty(userId)) {
+            int toPay = orderMapper.countOrderByStatus(userId, false, "101,801");
+            int toDelivery = orderMapper.countOrderByStatus(userId, false, "300");
+            int toReceive = orderMapper.countOrderByStatus(userId, false, "301");
 
             Map<String, Object> newStatus = new HashMap<>();
             newStatus.put("toPay", toPay);
@@ -72,7 +72,7 @@ public class OrderService {
         return null;
     }
 
-    public Map<String, Object> getOrderDetail(Long orderId, Long userId) {
+    public Map<String, Object> getOrderDetail(String orderId, String userId) {
         Order order = orderMapper.findOrderByIdAndUserId(orderId, userId);
         long currentTime = System.currentTimeMillis() / 1000;
         if (order == null) {
@@ -108,7 +108,7 @@ public class OrderService {
     }
 
 
-    public Map<String, Object> getOrderGoods(Long orderId, Long userId) {
+    public Map<String, Object> getOrderGoods(String orderId, String userId) {
         List<Map<String, Object>> orderGoods = orderMapper.findOrderGoodsByOrderIdAndUserId(orderId, userId);
 
         int goodsCount = orderGoods.stream().mapToInt(g -> (int) g.get("number")).sum();
@@ -120,7 +120,7 @@ public class OrderService {
         return response;
     }
 
-    public Map<String, Object> cancelOrder(Long orderId, Long userId) {
+    public Map<String, Object> cancelOrder(String orderId, String userId) {
         Order order = orderMapper.findOrderByIdAndUserId(orderId, userId);
         if (order == null || order.getHandleOption().get("") != null) {
             throw new RuntimeException("订单不能取消");
@@ -130,7 +130,7 @@ public class OrderService {
         return Collections.singletonMap("success", true);
     }
 
-    public Map<String, Object> deleteOrder(Long orderId) {
+    public Map<String, Object> deleteOrder(String orderId) {
         Order order = orderMapper.findOrderById(orderId);
         if (order == null || order.getHandleOption().get("") != null) {
             throw new RuntimeException("订单不能删除");
@@ -139,7 +139,7 @@ public class OrderService {
         return Collections.singletonMap("success", true);
     }
 
-    public Map<String, Object> confirmOrder(Long orderId) throws Exception {
+    public Map<String, Object> confirmOrder(String orderId) throws Exception {
         Map<String, Object> handleOption = orderMapper.getOrderHandleOption(orderId);
         if (!(Boolean) handleOption.get("confirm")) {
             throw new Exception("订单不能确认");
@@ -158,7 +158,7 @@ public class OrderService {
         return updateInfo;
     }
 
-    public Map<String, Object> completeOrder(Long orderId) throws Exception {
+    public Map<String, Object> completeOrder(String orderId) throws Exception {
         long currentTime = System.currentTimeMillis() / 1000;
         Map<String, Object> updateInfo = new HashMap<>();
         updateInfo.put("order_status", 401);
@@ -244,7 +244,7 @@ public class OrderService {
     @Autowired
     private RestTemplate restTemplate;
 
-    public Map<String, Object> updateOrder(Long addressId, Long orderId) {
+    public Map<String, Object> updateOrder(String addressId, String orderId) {
         Address updateAddress = addressMapper.findById(addressId);
         Order orderInfo = new Order();
         orderInfo.setConsignee(updateAddress.getName());
@@ -260,7 +260,7 @@ public class OrderService {
         return result;
     }
 
-    public Map<String, Object> getExpressInfo(Long orderId) throws Exception {
+    public Map<String, Object> getExpressInfo(String orderId) throws Exception {
         long currentTime = System.currentTimeMillis() / 1000;
         OrderExpress info = orderExpressMapper.findByOrderId(orderId);
 
@@ -453,7 +453,7 @@ public class OrderService {
      * @param payTime 支付时间
      * @return boolean
      */
-    public boolean setOrderPayTime(Long orderId, Date payTime) {
+    public boolean setOrderPayTime(String orderId, Date payTime) {
         return orderMapper.updatePayTime(orderId, payTime) > 0;
     }
 
@@ -463,7 +463,7 @@ public class OrderService {
      * @param orderId 订单ID
      * @return boolean
      */
-    public boolean orderDeleteById(Long orderId) {
+    public boolean orderDeleteById(String orderId) {
         return orderMapper.logicDeleteById(orderId) > 0;
     }
 
@@ -473,7 +473,7 @@ public class OrderService {
      * @param orderId 订单ID
      * @return boolean
      */
-    public boolean checkPayStatus(Long orderId) {
+    public boolean checkPayStatus(String orderId) {
         return orderMapper.countPaidOrder(orderId) == 0;
     }
 
@@ -484,7 +484,7 @@ public class OrderService {
      * @param payStatus 支付状态
      * @return boolean
      */
-    public boolean updatePayStatus(Long orderId, int payStatus) {
+    public boolean updatePayStatus(String orderId, int payStatus) {
         return orderMapper.updatePayStatus(orderId, payStatus) > 0;
     }
 
@@ -495,7 +495,7 @@ public class OrderService {
      * @param orderStatus 订单状态
      * @return boolean
      */
-    public boolean updateOrderStatus(Long orderId, int orderStatus) {
+    public boolean updateOrderStatus(String orderId, int orderStatus) {
         return orderMapper.updateOrderStatus(orderId, orderStatus) > 0;
     }
 
@@ -519,7 +519,7 @@ public class OrderService {
      * @param info    支付信息
      * @return boolean
      */
-    public boolean updatePayData(Long orderId, Map<String, Object> info) {
+    public boolean updatePayData(String orderId, Map<String, Object> info) {
         Map<String, Object> data = new HashMap<>();
         data.put("pay_status", 2);
         data.put("order_status", 300);

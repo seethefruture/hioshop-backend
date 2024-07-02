@@ -1,9 +1,11 @@
 package com.example.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.example.mapper.CategoryMapper;
 import com.example.mapper.GoodsMapper;
 import com.example.po.Category;
 import com.example.po.Goods;
+import com.example.utils.MySnowFlakeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,5 +62,56 @@ public class CategoryService {
         result.put("list", goodsList);
         result.put("total", total);
         return result;
+    }
+
+    public int updateSortOrder(Long id, Integer sort) {
+        return categoryMapper.updateSortOrder(id, sort);
+    }
+
+    public List<Category> getTopCategory() {
+        return categoryMapper.selectTopCategory();
+    }
+
+    public Category getCategoryById(Long id) {
+        return categoryMapper.selectCategoryById(id);
+    }
+
+    public void saveOrUpdateCategory(Category category) {
+        if (StrUtil.isNotEmpty(category.getId())) {
+            categoryMapper.updateCategory(category);
+        } else {
+            category.setId(MySnowFlakeGenerator.next());
+            categoryMapper.insertCategory(category);
+        }
+    }
+
+    public boolean deleteCategory(Long id) {
+        List<Category> subCategories = categoryMapper.selectSubCategories(id);
+        if (!subCategories.isEmpty()) {
+            return false;
+        } else {
+            categoryMapper.deleteCategory(id);
+            return true;
+        }
+    }
+
+    public void updateShowStatus(Long id, boolean status) {
+        categoryMapper.updateShowStatus(id, status ? 1 : 0);
+    }
+
+    public void updateChannelStatus(Long id, boolean status) {
+        categoryMapper.updateChannelStatus(id, status ? 1 : 0);
+    }
+
+    public void updateCategoryStatus(Long id, boolean status) {
+        categoryMapper.updateCategoryStatus(id, status ? 1 : 0);
+    }
+
+    public void deleteBannerImage(Long id) {
+        categoryMapper.deleteBannerImage(id);
+    }
+
+    public void deleteIconImage(Long id) {
+        categoryMapper.deleteIconImage(id);
     }
 }

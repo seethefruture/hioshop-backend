@@ -58,7 +58,7 @@ public class TimeTaskService {
         // Update ads
         List<Ad> ads = adMapper.findExpiredAds(currentTime);
         for (Ad ad : ads) {
-            ad.setEnabled(0);
+            ad.setEnabled(false);
             adMapper.update(ad);
         }
 

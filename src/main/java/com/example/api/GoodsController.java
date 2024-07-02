@@ -24,7 +24,7 @@ public class GoodsController {
     }
 
     @GetMapping("/detail")
-    public ResponseEntity<?> detail(@RequestParam("id") Long goodsId, @RequestParam("userId") Long userId) {
+    public ResponseEntity<?> detail(@RequestParam("id") String goodsId, @RequestParam("userId") String userId) {
         Map<String, Object> detail = goodsService.getGoodsDetail(goodsId, userId);
         if (detail == null) {
             return ResponseEntity.badRequest().body("该商品不存在或已下架");
@@ -33,25 +33,25 @@ public class GoodsController {
     }
 
     @GetMapping("/share")
-    public ResponseEntity<?> goodsShare(@RequestParam("id") Long goodsId) {
+    public ResponseEntity<?> goodsShare(@RequestParam("id") String goodsId) {
         Goods info = goodsService.getGoodsShare(goodsId);
         return ResponseEntity.ok(info);
     }
 
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getProductList(@RequestParam Long goodsId) {
+    public ResponseEntity<List<Product>> getProductList(@RequestParam String goodsId) {
         List<Product> products = goodsService.getProductList(goodsId);
         return ResponseEntity.ok(products);
     }
 
     @GetMapping("/specifications")
-    public ResponseEntity<Map<String, Object>> getSpecificationList(@RequestParam Long goodsId) {
+    public ResponseEntity<Map<String, Object>> getSpecificationList(@RequestParam String goodsId) {
         Map<String, Object> specifications = goodsService.getSpecificationList(goodsId);
         return ResponseEntity.ok(specifications);
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> list(@RequestParam(value = "userId", required = false) Long userId,
+    public ResponseEntity<?> list(@RequestParam(value = "userId", required = false) String userId,
                                   @RequestParam(value = "keyword", required = false) String keyword,
                                   @RequestParam(value = "sort", required = false) String sort,
                                   @RequestParam(value = "order", required = false) String order,

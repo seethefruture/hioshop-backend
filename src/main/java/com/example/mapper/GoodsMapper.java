@@ -13,10 +13,10 @@ import java.util.Map;
 public interface GoodsMapper {
 
     @Select("SELECT * FROM goods WHERE id = #{id}")
-    Goods findById(@Param("id") Long id);
+    Goods findById(@Param("id") String id);
 
     @Select("SELECT * FROM goods WHERE id in #{idList}")
-    List<Goods> findByIdList(@Param("idList") List<Long> idList);
+    List<Goods> findByIdList(@Param("idList") List<String> idList);
 
 
     @Select("SELECT * FROM goods WHERE is_on_sale = #{isOnSale} and is_delete=#{isDelete} and category_id=#{categoryId} ORDER BY  #{sortOrder} limit #{offset},#{limit}")
@@ -29,11 +29,11 @@ public interface GoodsMapper {
     List<Goods> selectAll();
 
     @Select("SELECT * FROM goods WHERE id = #{id} AND is_delete = 0")
-    Goods selectById(@Param("id") Long id);
+    Goods selectById(@Param("id") String id);
 
 
     @Select("  SELECT name, retail_price FROM goods WHERE id = #{id}")
-    Goods selectShareById(@Param("id") Long id);
+    Goods selectShareById(@Param("id") String id);
 
     List<Goods> selectByParams(Map<String, Object> params);
 
@@ -41,5 +41,5 @@ public interface GoodsMapper {
     int count();
 
     @Select("SELECT id, list_pic_url, is_new, goods_number, name, min_retail_price,category_id FROM goods WHERE category_id in #{categoryIdList} AND goods_number >= 0 AND is_on_sale = 1 AND is_index = 1 AND is_delete = 0 ORDER BY sort_order ASC")
-    List<Goods> findCategoryGoods(@Param("categoryIdList") List<Long> categoryIdList);
+    List<Goods> findCategoryGoods(@Param("categoryIdList") List<String> categoryIdList);
 }

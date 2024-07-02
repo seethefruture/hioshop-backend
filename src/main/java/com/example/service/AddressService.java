@@ -17,11 +17,11 @@ public class AddressService {
     @Autowired
     private RegionMapper regionMapper;
 
-    public List<Address> getAddresses(Long userId) {
+    public List<Address> getAddresses(String userId) {
         return addressMapper.findAddressFullNameByUserId(userId);
     }
 
-    public Address saveAddress(Long userId, Address address) {
+    public Address saveAddress(String userId, Address address) {
         address.setUserId(userId);
         if (address.getId() == null) {
             addressMapper.insert(address);
@@ -34,12 +34,12 @@ public class AddressService {
         return address;
     }
 
-    public boolean deleteAddress(Long id) {
+    public boolean deleteAddress(String id) {
         int affectedRows = addressMapper.delete(id);
         return affectedRows > 0;
     }
 
-    public Address getAddressDetail(Long userId, Long id) {
+    public Address getAddressDetail(String userId, String id) {
         return addressMapper.findAddressFullNameById(userId);
     }
 }

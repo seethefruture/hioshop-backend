@@ -7,7 +7,7 @@ import java.util.Map;
 
 @Data
 public class Order {
-    private Long id;
+    private String id;
     private String orderSn;
     private Integer orderStatus;
     private Long addTime;

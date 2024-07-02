@@ -11,5 +11,5 @@ import java.util.List;
 public interface GoodsGalleryMapper {
 
     @Select(" SELECT * FROM goods_gallery WHERE goods_id = #{goodsId} AND is_delete = 0 ORDER BY sort_order LIMIT 6")
-    List<GoodsGallery> selectByGoodsId(@Param("goodsId") Long goodsId);
+    List<GoodsGallery> selectByGoodsId(@Param("goodsId") String goodsId);
 }

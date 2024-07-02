@@ -32,7 +32,7 @@ public class AppService {
     private CartMapper cartMapper;
 
     public Map<String, Object> getAppInfo() {
-        long userId = getLoginUserId();
+        String userId = getLoginUserId();
 
         List<Ad> banner = adMapper.findEnabledAds();
         List<Notice> notice = noticeMapper.findActiveNotices();
@@ -40,7 +40,7 @@ public class AppService {
         List<Category> categoryList = categoryMapper.findShowCategories();
 
         List<Goods> allCategoryGoods = goodsMapper.findCategoryGoods(categoryList.stream().map(Category::getId).collect(Collectors.toList()));
-        Map<Long, List<Goods>> allCategoryGoodsGroupByCategory = allCategoryGoods.stream().collect(Collectors.groupingBy(Goods::getCategoryId));
+        Map<String, List<Goods>> allCategoryGoodsGroupByCategory = allCategoryGoods.stream().collect(Collectors.groupingBy(Goods::getCategoryId));
         for (Category categoryItem : categoryList) {
             categoryItem.setGoodsList(allCategoryGoodsGroupByCategory.get(categoryItem.getId()));
         }
@@ -54,8 +54,8 @@ public class AppService {
         return data;
     }
 
-    private long getLoginUserId() {
+    private String getLoginUserId() {
         // Implement your logic to get the logged-in user ID
-        return 1L;
+        return "";
     }
 }

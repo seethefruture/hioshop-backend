@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class UpdateOrderDto {
-    private Long addressId;
-    private Long orderId;
+    private String addressId;
+    private String orderId;
 
     // getters and setters
 }

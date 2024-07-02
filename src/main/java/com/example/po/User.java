@@ -19,4 +19,7 @@ public class User {
     private String mobile;
     private int nameMobile;
     private String ruleContent;
+    private String passwordSalt;
+    private boolean isShow;
+    private boolean isNew;
 }

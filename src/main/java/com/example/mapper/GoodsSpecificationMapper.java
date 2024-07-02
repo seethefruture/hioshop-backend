@@ -11,5 +11,5 @@ import java.util.List;
 public interface GoodsSpecificationMapper {
 
     @Select("SELECT * FROM goods_specification WHERE goods_id = #{goodsId} and is_delete=0")
-    List<GoodsSpecification> selectSpecificationList(@Param("goodsId") Long goodsId);
+    List<GoodsSpecification> selectSpecificationList(@Param("goodsId") String goodsId);
 }

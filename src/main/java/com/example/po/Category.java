@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class Category {
-    private Long id;
+    private String id;
     private String name;
     private String imgUrl;
     private Integer pHeight;

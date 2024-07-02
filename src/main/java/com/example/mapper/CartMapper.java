@@ -7,10 +7,10 @@ import java.util.List;
 
 @Mapper
 public interface CartMapper {
-    List<Cart> getCharts(@Param("userId") Long userId, @Param("isFast") Boolean isFast, @Param("productId") Long productId);
+    List<Cart> getCharts(@Param("userId") String userId, @Param("isFast") Boolean isFast, @Param("productId") String productId);
 
     @Update("UPDATE cart SET checked = 0 WHERE product_id = #{productId} AND user_id = #{userId} AND is_delete = 0")
-    void uncheckItem(@Param("productId") Long productId, @Param("userId") Long userId);
+    void uncheckItem(@Param("productId") String productId, @Param("userId") String userId);
 
     void updateCart(@Param("cartList") List<Cart> cart);
 
@@ -22,17 +22,17 @@ public interface CartMapper {
     void update(Cart cart);
 
     @Select("SELECT * FROM cart WHERE user_id = #{userId} AND checked = 1 AND is_delete = 0")
-    List<Cart> selectCheckedGoodsList(@Param("userId") Long userId);
+    List<Cart> selectCheckedGoodsList(@Param("userId") String userId);
 
     @Select(" UPDATE cart SET is_delete = 1 WHERE user_id = #{userId} AND checked = 1 AND is_delete = 0")
-    int deleteAllProducts(@Param("userId") Long userId);
+    int deleteAllProducts(@Param("userId") String userId);
 
-    void deleteProducts(@Param("userId") Long userId, @Param("productIds") List<Long> productIds);
+    void deleteProducts(@Param("userId") String userId, @Param("productIds") List<String> productIds);
 
 
     @Update("UPDATE cart SET is_delete = 1 WHERE user_id = #{userId} AND is_delete = 0 AND is_fast = 1")
-    void updateFastCart(@Param("userId") Long userId);
+    void updateFastCart(@Param("userId") String userId);
 
 
-    Integer getCartCountByUserId(@Param("userId") Long userId);
+    Integer getCartCountByUserId(@Param("userId") String userId);
 }

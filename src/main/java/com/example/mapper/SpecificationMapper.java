@@ -7,5 +7,5 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface SpecificationMapper {
 
-    Specification findById(@Param("id") Long id);
+    Specification findById(@Param("id") String id);
 }

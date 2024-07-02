@@ -7,13 +7,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Footprint {
 
-    private Long id;
-    private Long userId;
-    private Long goodsId;
+    private String id;
+    private String userId;
+    private String goodsId;
     private String addTime;
     private Goods goods;
 
-    public Footprint(Long userId, Long goodsId) {
+    public Footprint(String userId, String goodsId) {
         this.userId = userId;
         this.goodsId = goodsId;
     }

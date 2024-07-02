@@ -1,5 +1,6 @@
 package com.example.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.example.mapper.UserMapper;
 import com.example.po.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,5 +47,14 @@ public class UserService {
 
     public User getUserById(String userId) {
         return userMapper.findById(userId);
+    }
+
+    public void saveUser(User user) {
+        if (StrUtil.isNotEmpty(user.getId())) {
+            userMapper.update(user);
+        } else {
+            user.setId(null);
+            userMapper.insert(user);
+        }
     }
 }

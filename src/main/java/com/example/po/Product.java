@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class Product {
-    private Long id;
-    private Long goodsId;
+    private String id;
+    private String goodsId;
     private String goodsSn;
     private String goodsName;
     private double retailPrice;
@@ -14,5 +14,5 @@ public class Product {
     private boolean isDeleted;
     private String goodsSpecificationIds;
     private Double goodsWeight;
-    private int isDelete;
+    private Boolean isDelete;
 }

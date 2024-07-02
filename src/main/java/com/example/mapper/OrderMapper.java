@@ -20,23 +20,23 @@ public interface OrderMapper {
     @Update("UPDATE `order` SET order_status = #{orderStatus}, confirm_time = #{confirmTime} WHERE id = #{id}")
     int update(Order order);
 
-    List<Map<String, Object>> listOrders(@Param("userId") Long userId, @Param("showType") int showType, @Param("offset") int offset, @Param("limit") int limit);
+    List<Map<String, Object>> listOrders(@Param("userId") String userId, @Param("showType") int showType, @Param("offset") int offset, @Param("limit") int limit);
 
-    int countOrders(@Param("userId") Long userId, @Param("showType") int showType);
+    int countOrders(@Param("userId") String userId, @Param("showType") int showType);
 
-    Map<String, Integer> getOrderCountByStatus(@Param("userId") Long userId);
+    Map<String, Integer> getOrderCountByStatus(@Param("userId") String userId);
 
-    Order getOrderDetails(@Param("orderId") Long orderId, @Param("userId") Long userId);
+    Order getOrderDetails(@Param("orderId") String orderId, @Param("userId") String userId);
 
-    List<OrderGoods> getOrderGoods(@Param("orderId") Long orderId, @Param("userId") Long userId);
+    List<OrderGoods> getOrderGoods(@Param("orderId") String orderId, @Param("userId") String userId);
 
-    void cancelOrder(@Param("orderId") Long orderId, @Param("userId") Long userId);
+    void cancelOrder(@Param("orderId") String orderId, @Param("userId") String userId);
 
-    void deleteOrder(@Param("orderId") Long orderId, @Param("userId") Long userId);
+    void deleteOrder(@Param("orderId") String orderId, @Param("userId") String userId);
 
-    void confirmOrder(@Param("orderId") Long orderId, @Param("userId") Long userId);
+    void confirmOrder(@Param("orderId") String orderId, @Param("userId") String userId);
 
-    void completeOrder(@Param("orderId") Long orderId);
+    void completeOrder(@Param("orderId") String orderId);
 
     int insertOrder(@Param("orderInfo") Map<String, Object> orderInfo);
 
@@ -46,9 +46,9 @@ public interface OrderMapper {
 
     void clearBuyGoods(@Param("userId") String userId);
 
-    Integer updateOrder(@Param("updateInfo") Map<String, Object> updateInfo, @Param("orderId") Long orderId);
+    Integer updateOrder(@Param("updateInfo") Map<String, Object> updateInfo, @Param("orderId") String orderId);
 
-    Map<String, Object> getExpressInfo(@Param("orderId") Long orderId);
+    Map<String, Object> getExpressInfo(@Param("orderId") String orderId);
 
     @Select("SELECT id, add_time, actual_price, freight_price, offline_pay\n" +
             "        FROM orders\n" +
@@ -58,43 +58,43 @@ public interface OrderMapper {
             "        AND order_status IN  #{status}\n" +
             "        ORDER BY add_time DESC\n" +
             "        LIMIT #{page}, #{size}")
-    List<Order> findOrders(@Param("userId") Long userId, @Param("isDelete") Boolean isDelete, @Param("status") List<Integer> status, @Param("page") int page, @Param("size") int size);
+    List<Order> findOrders(@Param("userId") String userId, @Param("isDelete") Boolean isDelete, @Param("status") List<Integer> status, @Param("page") int page, @Param("size") int size);
 
     @Select("  SELECT add_time FROM orders WHERE id = #{orderId}")
-    Long getOrderAddTime(@Param("orderId") Long orderId);
+    Long getOrderAddTime(@Param("orderId") String orderId);
 
     @Select("SELECT status_text FROM order_status WHERE id = #{orderId}")
-    String getOrderStatusText(@Param("orderId") Long orderId);
+    String getOrderStatusText(@Param("orderId") String orderId);
 
     @Select(" SELECT handle_option FROM order_handle_option WHERE id = #{orderId}")
-    Map<String, Object> getOrderHandleOption(@Param("orderId") Long orderId);
+    Map<String, Object> getOrderHandleOption(@Param("orderId") String orderId);
 
     @Select("SELECT COUNT(id) FROM orders\n" +
             "        WHERE user_id = #{userId}\n" +
             "        AND is_delete = #{isDelete}\n" +
             "        AND order_status IN  #{status}")
-    int countOrders(@Param("userId") Long userId, @Param("isDelete") int isDelete, @Param("status") List<Integer> status);
+    int countOrders(@Param("userId") String userId, @Param("isDelete") Boolean isDelete, @Param("status") List<Integer> status);
 
     @Select(" SELECT COUNT(id) FROM orders\n" +
             "        WHERE user_id = #{userId}\n" +
             "        AND is_delete = #{isDelete}\n" +
             "        AND order_status IN (${status})")
-    int countOrderByStatus(@Param("userId") Long userId, @Param("isDelete") int isDelete, @Param("status") String status);
+    int countOrderByStatus(@Param("userId") String userId, @Param("isDelete") Boolean isDelete, @Param("status") String status);
 
     @Select("SELECT * FROM order WHERE id = #{orderId} AND user_id = #{userId}")
-    Order findOrderByIdAndUserId(@Param("orderId") Long orderId, @Param("userId") Long userId);
+    Order findOrderByIdAndUserId(@Param("orderId") String orderId, @Param("userId") String userId);
 
     @Select("SELECT * FROM order WHERE id = #{orderId}")
-    Order findOrderById(@Param("orderId") Long orderId);
+    Order findOrderById(@Param("orderId") String orderId);
 
     @Select("SELECT * FROM order_goods WHERE order_id = #{orderId} AND user_id = #{userId} AND is_delete = 0")
-    List<Map<String, Object>> findOrderGoodsByOrderIdAndUserId(@Param("orderId") Long orderId, @Param("userId") Long userId);
+    List<Map<String, Object>> findOrderGoodsByOrderIdAndUserId(@Param("orderId") String orderId, @Param("userId") String userId);
 
     @Update("UPDATE order SET order_status = #{status} WHERE id = #{orderId}")
-    Integer updateOrderStatus(@Param("orderId") Long orderId, @Param("status") int status);
+    Integer updateOrderStatus(@Param("orderId") String orderId, @Param("status") int status);
 
     @Delete("DELETE FROM order WHERE id = #{orderId}")
-    void deleteOrderById(@Param("orderId") Long orderId);
+    void deleteOrderById(@Param("orderId") String orderId);
 
     Map<String, Object> getAddress(@Param("addressId") String addressId);
 
@@ -102,25 +102,25 @@ public interface OrderMapper {
 
     String generateOrderNumber();
 
-    void updateOrder(@Param("orderId") Long orderId, @Param("order") Order order);
+    void updateOrder(@Param("orderId") String orderId, @Param("order") Order order);
 
 
-    List<OrderGoods> findOrderGoodsByOrderId(@Param("orderId") Long orderId);
+    List<OrderGoods> findOrderGoodsByOrderId(@Param("orderId") String orderId);
 
     @Select("SELECT * FROM orders WHERE id = #{orderId}")
-    Order findById(@Param("orderId") Long orderId);
+    Order findById(@Param("orderId") String orderId);
 
     @Update("UPDATE orders SET pay_time = #{payTime} WHERE id = #{orderId}")
-    int updatePayTime(@Param("orderId") Long orderId, @Param("payTime") Date payTime);
+    int updatePayTime(@Param("orderId") String orderId, @Param("payTime") Date payTime);
 
     @Update("UPDATE orders SET is_delete = 1 WHERE id = #{orderId}")
-    int logicDeleteById(@Param("orderId") Long orderId);
+    int logicDeleteById(@Param("orderId") String orderId);
 
     @Select("SELECT COUNT(*) FROM orders WHERE id = #{orderId} AND pay_status = 2")
-    int countPaidOrder(@Param("orderId") Long orderId);
+    int countPaidOrder(@Param("orderId") String orderId);
 
     @Update("UPDATE orders SET pay_status = #{payStatus} WHERE id = #{orderId}")
-    int updatePayStatus(@Param("orderId") Long orderId, @Param("payStatus") int payStatus);
+    int updatePayStatus(@Param("orderId") String orderId, @Param("payStatus") int payStatus);
 
 
     @Select("SELECT * FROM orders WHERE order_sn = #{orderSn}")
@@ -135,5 +135,5 @@ public interface OrderMapper {
             "WHERE id = #{orderId}",
             "</script>"
     })
-    int updatePayData(@Param("orderId") Long orderId, @Param("data") Map<String, Object> data);
+    int updatePayData(@Param("orderId") String orderId, @Param("data") Map<String, Object> data);
 }

@@ -15,5 +15,5 @@ public interface OrderGoodsMapper {
             "        WHERE user_id = #{userId}\n" +
             "        AND order_id = #{orderId}\n" +
             "        AND is_delete = #{isDelete}")
-    List<OrderGoods> findOrderGoods(@Param("userId") Long userId, @Param("orderId") Long orderId, @Param("isDelete") Boolean isDelete);
+    List<OrderGoods> findOrderGoods(@Param("userId") String userId, @Param("orderId") String orderId, @Param("isDelete") Boolean isDelete);
 }

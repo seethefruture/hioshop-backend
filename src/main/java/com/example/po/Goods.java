@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class Goods {
-    private Long id;
+    private String id;
     private String name;
     private String goodsBrief;
     private Double minRetailPrice;
@@ -13,7 +13,7 @@ public class Goods {
     private Integer goodsNumber; // .
     private Boolean isOnSale;
     private Integer isDelete;
-    private Long categoryId;
+    private String categoryId;
     private double retailPrice;
     private Long goodsId;
     private String imgUrl;

@@ -11,7 +11,7 @@ public class OrderExpressService {
     @Autowired
     private OrderExpressMapper orderExpressMapper;
 
-    public OrderExpress getLatestOrderExpress(Long orderId) {
+    public OrderExpress getLatestOrderExpress(String orderId) {
         OrderExpress returnExpressInfo = new OrderExpress();
         returnExpressInfo.setShipperCode("");
         returnExpressInfo.setShipperName("");

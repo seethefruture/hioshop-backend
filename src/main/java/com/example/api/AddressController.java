@@ -22,7 +22,7 @@ public class AddressController {
      */
     @GetMapping("/list")
     public ResponseEntity<?> getAddresses() {
-        Long userId = getLoginUserId();
+        String userId = getLoginUserId();
         List<Address> addressList = addressService.getAddresses(userId);
         return ResponseEntity.ok(addressList);
     }
@@ -35,7 +35,7 @@ public class AddressController {
      */
     @PostMapping("/save")
     public ResponseEntity<?> saveAddress(@RequestBody Address address) {
-        Long userId = getLoginUserId();
+        String userId = getLoginUserId();
         Address savedAddress = addressService.saveAddress(userId, address);
         return ResponseEntity.ok(savedAddress);
     }
@@ -47,7 +47,7 @@ public class AddressController {
      * @return
      */
     @PostMapping("/delete")
-    public ResponseEntity<?> deleteAddress(@RequestParam Long id) {
+    public ResponseEntity<?> deleteAddress(@RequestParam String id) {
         boolean success = addressService.deleteAddress(id);
         return success ? ResponseEntity.ok().build() : ResponseEntity.status(500).build();
     }
@@ -59,14 +59,14 @@ public class AddressController {
      * @return
      */
     @GetMapping("/detail")
-    public ResponseEntity<?> addressDetail(@RequestParam Long id) {
-        Long userId = getLoginUserId();
+    public ResponseEntity<?> addressDetail(@RequestParam String id) {
+        String userId = getLoginUserId();
         Address address = addressService.getAddressDetail(userId, id);
         return ResponseEntity.ok(address);
     }
 
-    private Long getLoginUserId() {
+    private String getLoginUserId() {
         // 假设有一个方法可以获取当前登录的用户ID
-        return 1048L; // 示例，实际应从认证上下文中获取
+        return ""; // 示例，实际应从认证上下文中获取
     }
 }

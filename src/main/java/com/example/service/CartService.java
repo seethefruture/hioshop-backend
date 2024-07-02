@@ -1,6 +1,7 @@
 package com.example.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.example.mapper.AddressMapper;
 import com.example.mapper.CartMapper;
 import com.example.mapper.GoodsMapper;
@@ -28,20 +29,20 @@ public class CartService {
     @Autowired
     private GoodsMapper goodsMapper;
 
-    public List<Cart> getGoodsList(Long userId) {
+    public List<Cart> getGoodsList(String userId) {
         return cartMapper.getCharts(userId, null, null);
     }
 
-    public List<Cart> getCheckedGoodsList(Long userId) {
+    public List<Cart> getCheckedGoodsList(String userId) {
         return cartMapper.selectCheckedGoodsList(userId);
     }
 
-    public int clearBuyGoods(Long userId) {
+    public int clearBuyGoods(String userId) {
         return cartMapper.deleteAllProducts(userId);
     }
 
     public Map<String, Object> getCarts(int type) {
-        Long userId = getLoginUserId();
+        String userId = getLoginUserId();
         List<Cart> cartList = (type == 0) ? cartMapper.getCharts(userId, false, null) : cartMapper.getCharts(userId, true, null);
 
         int goodsCount = 0;
@@ -50,9 +51,9 @@ public class CartService {
         double checkedGoodsAmount = 0.0;
         int numberChange = 0;
 
-        Map<Long, Product> productInfoListGroup = productMapper.findByIdList(cartList.stream().map(Cart::getProductId).collect(Collectors.toList())).stream().collect(Collectors.toMap(Product::getId, e -> e));
-        Map<Long, Goods> goodsInfoListGroup = goodsMapper.findByIdList(cartList.stream().map(Cart::getGoodsId).collect(Collectors.toList())).stream().collect(Collectors.toMap(Goods::getId, e -> e));
-        List<Long> productIdTODeleteInChart = new ArrayList<>();
+        Map<String, Product> productInfoListGroup = productMapper.findByIdList(cartList.stream().map(Cart::getProductId).collect(Collectors.toList())).stream().collect(Collectors.toMap(Product::getId, e -> e));
+        Map<String, Goods> goodsInfoListGroup = goodsMapper.findByIdList(cartList.stream().map(Cart::getGoodsId).collect(Collectors.toList())).stream().collect(Collectors.toMap(Goods::getId, e -> e));
+        List<String> productIdTODeleteInChart = new ArrayList<>();
         List<Cart> cartItemTOUpdate = new ArrayList<>();
         for (Cart cartItem : cartList) {
             Product product = productInfoListGroup.get(cartItem.getProductId());
@@ -102,8 +103,8 @@ public class CartService {
         return result;
     }
 
-    public void addAgain(Long goodsId, Long productId, int number) {
-        Long userId = getLoginUserId();
+    public void addAgain(String goodsId, String productId, int number) {
+        String userId = getLoginUserId();
         long currentTime = System.currentTimeMillis() / 1000;
 
         Goods goods = goodsMapper.findById(goodsId);
@@ -149,9 +150,9 @@ public class CartService {
         }
     }
 
-    private Long getLoginUserId() {
+    private String getLoginUserId() {
         // Implement your user authentication logic here
-        return 1L;
+        return "";
     }
 
 
@@ -160,19 +161,19 @@ public class CartService {
 
 
     @Transactional
-    public void deleteProducts(Long userId, List<Long> productIds) {
+    public void deleteProducts(String userId, List<String> productIds) {
         cartMapper.deleteProducts(userId, productIds);
     }
 
-    public List<Cart> getCarts(Long userId, Boolean isFast, Long productId) {
+    public List<Cart> getCarts(String userId, Boolean isFast, String productId) {
         return cartMapper.getCharts(userId, isFast, productId);
     }
 
-    public void updateFastCart(Long userId) {
+    public void updateFastCart(String userId) {
         cartMapper.updateFastCart(userId);
     }
 
-    public Map<String, Object> checkout(Long userId, Long orderFrom, Integer type, Long addressId, Integer addType) {
+    public Map<String, Object> checkout(String userId, Long orderFrom, Integer type, String addressId, Integer addType) {
         Map<String, Object> result = new HashMap<>();
         List<Cart> cartList = getCarts(userId, false, null);
         double freightPrice = calculateFreight(cartList, addressId);
@@ -196,13 +197,13 @@ public class CartService {
         return result;
     }
 
-    private double calculateFreight(List<Cart> cartList, Long addressId) {
+    private double calculateFreight(List<Cart> cartList, String addressId) {
         // Implement freight calculation logic
         return 0.0;
     }
 
-    private Address getAddress(Long userId, Long addressId) {
-        if (addressId == null || addressId == 0) {
+    private Address getAddress(String userId, String addressId) {
+        if (StrUtil.isNotEmpty(addressId)) {
             return addressMapper.getDefaultAddress(userId);
         } else {
             return addressMapper.findByIdAndUserId(addressId, userId);

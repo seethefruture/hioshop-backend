@@ -16,52 +16,52 @@ public class OrderController {
 
     @GetMapping("/list")
     public Map<String, Object> listAction(@RequestParam int showType, @RequestParam int page, @RequestParam int size) {
-        Long userId = getLoginUserId();
+        String userId = getLoginUserId();
         return orderService.listAllOrders(userId, showType, page, size);
     }
 
     @GetMapping("/count")
     public Map<String, Object> countAction(@RequestParam int showType) {
-        Long userId = getLoginUserId();
+        String userId = getLoginUserId();
         return orderService.countAction(userId, showType);
     }
 
     @GetMapping("/orderCount")
     public Map<String, Object> orderCountAction() {
-        Long userId = getLoginUserId();
+        String userId = getLoginUserId();
         return orderService.orderCountAction(userId);
     }
 
     @GetMapping("/detail")
-    public Map<String, Object> detail(@RequestParam("orderId") Long orderId) {
-        Long userId = getLoginUserId();
+    public Map<String, Object> detail(@RequestParam("orderId") String orderId) {
+        String userId = getLoginUserId();
         return orderService.getOrderDetail(orderId, userId);
     }
 
     @GetMapping("/goods")
-    public Map<String, Object> orderGoods(@RequestParam("orderId") Long orderId) {
-        Long userId = getLoginUserId();
+    public Map<String, Object> orderGoods(@RequestParam("orderId") String orderId) {
+        String userId = getLoginUserId();
         return orderService.getOrderGoods(orderId, userId);
     }
 
     @PostMapping("/cancel")
-    public Map<String, Object> cancel(@RequestParam("orderId") Long orderId) {
-        Long userId = getLoginUserId();
+    public Map<String, Object> cancel(@RequestParam("orderId") String orderId) {
+        String userId = getLoginUserId();
         return orderService.cancelOrder(orderId, userId);
     }
 
     @PostMapping("/delete")
-    public Map<String, Object> delete(@RequestParam("orderId") Long orderId) {
+    public Map<String, Object> delete(@RequestParam("orderId") String orderId) {
         return orderService.deleteOrder(orderId);
     }
 
     @PostMapping("/confirm")
-    public Map<String, Object> confirmOrder(@RequestParam("orderId") Long orderId) throws Exception {
+    public Map<String, Object> confirmOrder(@RequestParam("orderId") String orderId) throws Exception {
         return orderService.confirmOrder(orderId);
     }
 
     @GetMapping("/complete")
-    public Map<String, Object> completeOrder(@RequestParam("orderId") Long orderId) throws Exception {
+    public Map<String, Object> completeOrder(@RequestParam("orderId") String orderId) throws Exception {
         return orderService.completeOrder(orderId);
     }
 
@@ -76,13 +76,13 @@ public class OrderController {
     }
 
     @GetMapping("/express")
-    public Map<String, Object> getExpressInfo(@RequestParam("orderId") Long orderId) throws Exception {
+    public Map<String, Object> getExpressInfo(@RequestParam("orderId") String orderId) throws Exception {
         return orderService.getExpressInfo(orderId);
     }
 
-    private Long getLoginUserId() {
+    private String getLoginUserId() {
         // 实现获取当前登录用户ID的逻辑
-        return 1L; // 临时返回一个示例值
+        return ""; // 临时返回一个示例值
     }
 
 }

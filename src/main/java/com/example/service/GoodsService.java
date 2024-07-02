@@ -53,7 +53,7 @@ public class GoodsService {
      * @param goodsId
      * @return List<Product>
      */
-    public List<Product> getProductList(Long goodsId) {
+    public List<Product> getProductList(String goodsId) {
         return productMapper.selectProductList(goodsId);
     }
 
@@ -63,19 +63,19 @@ public class GoodsService {
      * @param goodsId
      * @return Map<String, Object>
      */
-    public Map<String, Object> getSpecificationList(Long goodsId) {
+    public Map<String, Object> getSpecificationList(String goodsId) {
         List<GoodsSpecification> info = goodsSpecificationMapper.selectSpecificationList(goodsId);
         for (GoodsSpecification item : info) {
             Product product = productMapper.findProductByGoodsDetail(goodsId, item.getId(), 0);
             item.setGoodsNumber(product.getGoodsNumber());
         }
-        Long specId = info.get(0).getSpecificationId();
+        String specId = info.get(0).getSpecificationId();
         Specification specification = specificationMapper.findById(specId);
         String name = specification.getName();
         return new JSONObject().fluentPut("specification_id", specId).fluentPut("name", name).fluentPut("valueList", info);
     }
 
-    public Map<String, Object> getGoodsDetail(Long goodsId, Long userId) {
+    public Map<String, Object> getGoodsDetail(String goodsId, String userId) {
         Goods info = goodsMapper.selectById(goodsId);
         if (info == null || info.getIsDelete() == 1) {
             return null;
@@ -94,11 +94,11 @@ public class GoodsService {
         return result;
     }
 
-    public Goods getGoodsShare(Long goodsId) {
+    public Goods getGoodsShare(String goodsId) {
         return goodsMapper.selectShareById(goodsId);
     }
 
-    public List<Goods> getGoodsList(Long userId, String keyword, String sort, String order, String sales) {
+    public List<Goods> getGoodsList(String userId, String keyword, String sort, String order, String sales) {
         Map<String, Object> params = new HashMap<>();
         params.put("isOnSale", 1);
         params.put("isDelete", 0);

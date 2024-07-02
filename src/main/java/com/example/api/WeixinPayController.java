@@ -15,7 +15,7 @@ public class WeixinPayController {
     private WeixinService weixinService;
 
     @PostMapping("/preWeixinPaya")
-    public ResponseEntity<?> preWeixinPaya(@RequestParam("orderId") Long orderId) {
+    public ResponseEntity<?> preWeixinPaya(@RequestParam("orderId") String orderId) {
         try {
             weixinService.preWeixinPaya(orderId);
             return ResponseEntity.ok("Success");
@@ -25,7 +25,7 @@ public class WeixinPayController {
     }
 
     @PostMapping("/preWeixinPay")
-    public ResponseEntity<?> preWeixinPay(@RequestParam("orderId") Long orderId) {
+    public ResponseEntity<?> preWeixinPay(@RequestParam("orderId") String orderId) {
         try {
             Map<String, Object> result = weixinService.preWeixinPay(orderId);
             return ResponseEntity.ok(result);

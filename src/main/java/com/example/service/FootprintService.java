@@ -1,6 +1,7 @@
 package com.example.service;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.example.mapper.FootprintMapper;
 import com.example.mapper.GoodsMapper;
 import com.example.po.Footprint;
@@ -21,11 +22,11 @@ public class FootprintService {
     @Autowired
     private GoodsMapper goodsMapper;
 
-    public void deleteFootprint(Long userId, Long footprintId) {
+    public void deleteFootprint(String userId, String footprintId) {
         footprintMapper.deleteFootprintByUserAndId(userId, footprintId);
     }
 
-    public List<Footprint> listFootprints(Long userId, int page, int size) {
+    public List<Footprint> listFootprints(String userId, int page, int size) {
         List<Footprint> footprints = footprintMapper.findFootprintsByUserId(userId, (page - 1) * size, size);
         for (Footprint footprint : footprints) {
             Goods goods = goodsMapper.findById(footprint.getGoodsId());
@@ -45,8 +46,8 @@ public class FootprintService {
         }
     }
 
-    public void addFootprint(Long userId, Long goodsId) {
-        if (userId > 0 && goodsId > 0) {
+    public void addFootprint(String userId, String goodsId) {
+        if (StrUtil.isNotEmpty(userId) && StrUtil.isNotEmpty(goodsId) ) {
             long currentTime = System.currentTimeMillis() / 1000;
             Footprint footprint = footprintMapper.findByUserIdAndGoodsId(goodsId, userId);
 

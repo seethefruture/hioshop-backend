@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mapper.AdMapper">
+    <select id="findAds" resultType="com.example.po.Ad">
+        SELECT *
+        FROM ad
+        WHERE is_delete = 0
+        ORDER BY id ASC
+        LIMIT #{page}, #{size}
+    </select>
+
+    <update id="updateSortOrder">
+        UPDATE ad
+        SET sort_order = #{sort}
+        WHERE id = #{id}
+    </update>
+
+    <select id="findById" resultType="com.example.po.Ad">
+        SELECT *
+        FROM ad
+        WHERE id = #{id}
+    </select>
+
+    <update id="updateAd">
+        UPDATE ad SET
+        <foreach collection="ad" index="key" item="value" separator=",">
+            ${key} = #{value}
+        </foreach>
+        WHERE id = #{id}
+    </update>
+
+    <select id="findAdByGoodsId" resultType="com.example.po.Ad">
+        SELECT *
+        FROM ad
+        WHERE goods_id = #{goodsId}
+          AND is_delete = 0
+    </select>
+
+    <insert id="addAd">
+        INSERT INTO ad
+        <foreach collection="ad" index="key" item="value" separator=",">
+            ${key}
+        </foreach>
+        VALUES
+        <foreach collection="ad" index="key" item="value" separator=",">
+            #{value}
+        </foreach>
+    </insert>
+
+    <select id="findAllRelatedGoods" resultType="map">
+        SELECT id, name, list_pic_url
+        FROM goods
+        WHERE is_on_sale = 1
+          AND is_delete = 0
+    </select>
+
+    <update id="markAdAsDeleted">
+        UPDATE ad
+        SET is_delete = 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateSaleStatus">
+        UPDATE ad
+        SET enabled = #{enabled}
+        WHERE id = #{id}
+    </update>
+</mapper>

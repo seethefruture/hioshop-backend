@@ -4,10 +4,10 @@ import lombok.Data;
 
 @Data
 public class GoodsSpecification {
-    private Long id;
-    private Long goodsId;
-    private Long specificationId;
-    private int isDelete;
+    private String id;
+    private String goodsId;
+    private String specificationId;
+    private Boolean isDelete;
     private int goodsNumber;
 
     // Getters and setters
