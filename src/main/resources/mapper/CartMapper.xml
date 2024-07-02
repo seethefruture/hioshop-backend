@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.mapper.CartMapper">
+    <update id="deleteProducts">
+        UPDATE cart
+        SET is_delete = 1
+        WHERE user_id = #{userId}
+          AND is_delete = 0
+          AND product_id IN #{productIds}
+    </update>
+    <update id="updateCart">
+        <foreach collection="cartList" item="cart" separator=";">
+            UPDATE cart
+            SET number = #{cart.number},
+            add_price = #{cart.retailPrice}
+            WHERE product_id = #{cart.productId}
+            AND user_id = #{cart.userId}
+            AND is_delete = 0
+        </foreach>
+
+    </update>
+
+    <select id="getCartCountByUserId" resultType="java.lang.Integer">
+        SELECT IF
+                   (
+                       ISNULL(SUM(number)),
+                       0,
+                       SUM(number)
+                   ) AS bought_number
+        FROM cart
+        WHERE user_id = #{userId}
+          AND is_delete = 0
+    </select>
+    <select id="getCharts" resultType="com.example.po.Cart">
+        SELECT *
+        FROM cart
+        WHERE user_id = #{userId}
+        <if test="is_fast != null">
+            AND is_fast = #{isFast}
+        </if>
+        <if test="product_id != null and product_id != ''">
+            AND product_id = #{productId}
+        </if>
+        AND checked = '1'
+        AND is_delete = 0
+    </select>
+</mapper>
