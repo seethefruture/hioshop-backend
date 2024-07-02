@@ -1,6 +1,6 @@
 package com.example.mapper;
 
-import com.example.po.Goods;
+import com.example.vo.Goods;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -42,4 +42,54 @@ public interface GoodsMapper {
 
     @Select("SELECT id, list_pic_url, is_new, goods_number, name, min_retail_price,category_id FROM goods WHERE category_id in #{categoryIdList} AND goods_number >= 0 AND is_on_sale = 1 AND is_index = 1 AND is_delete = 0 ORDER BY sort_order ASC")
     List<Goods> findCategoryGoods(@Param("categoryIdList") List<String> categoryIdList);
+
+    List<Goods> findGoods(@Param("name") String name, @Param("page") int page, @Param("size") int size);
+
+    Goods findGoodsById(@Param("id") String id);
+
+    int insertGoods(Goods goods);
+
+    void updateGoodsNumber(@Param("id") String id, @Param("goodsNumber") int goodsNumber);
+
+    List<Goods> findAllGoods();
+
+    List<Goods> findOnSaleGoods(@Param("page") int page, @Param("size") int size);
+
+    List<Goods> findOutOfStockGoods(@Param("page") int page, @Param("size") int size);
+
+    List<Goods> findDroppedGoods(@Param("page") int page, @Param("size") int size);
+
+    List<Goods> findGoodsSortedBySellVolume(@Param("page") int page, @Param("size") int size);
+
+    List<Goods> findGoodsSortedByRetailPrice(@Param("page") int page, @Param("size") int size);
+
+    List<Goods> findGoodsSortedByNumber(@Param("page") int page, @Param("size") int size);
+
+    void updateSaleStatus(@Param("id") String id, @Param("saleStatus") int saleStatus);
+
+    List<String> findFreightTemplates();
+
+    List<String> findCategories();
+
+    List<Goods> findLevel1Categories();
+
+    List<Goods> findLevel2Categories();
+
+    List<Goods> findLevel2CategoriesByParentId(String parentId);
+
+    void updateIndexShowStatus(String id, Integer status);
+
+    void updateSortOrder(String id, Integer sort);
+
+    void updateShortName(String id, String shortName);
+
+    void updateListPicUrl(String id, String url);
+
+    void markAsDeleted(String id);
+
+    void update(Goods goods);
+
+    String add(Goods goods);
+
+    int countOnSale();
 }

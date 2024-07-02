@@ -1,6 +1,6 @@
 package com.example.api;
 
-import com.example.po.OrderExpress;
+import com.example.vo.OrderExpress;
 import com.example.service.OrderExpressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

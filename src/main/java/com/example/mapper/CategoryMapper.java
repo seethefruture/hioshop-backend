@@ -8,23 +8,13 @@ import java.util.List;
 @Mapper
 public interface CategoryMapper {
 
-    @Select("SELECT * FROM category limit #{limit}")
-    List<Category> selectCategories(@Param("limit") int limit);
+    List<Category> selectRootCategories();
 
-    @Select("SELECT * FROM category where id = #{id}")
     Category selectCategoryById(@Param("id") Long id);
 
-    @Select("SELECT id FROM category WHERE parent_id = #{parentId}")
-    List<Long> findIdsByParentId(@Param("parentId") Long parentId);
-
-    @Select("SELECT id, icon_url, name, sort_order FROM category WHERE is_channel = 1 AND parent_id = 0 ORDER BY sort_order")
     List<Category> findChannelCategories();
 
-    @Select("SELECT id, name, img_url AS banner, p_height AS height FROM category WHERE parent_id = 0 AND is_show = 1 ORDER BY sort_order")
     List<Category> findShowCategories();
-
-    @Select("SELECT * FROM category ORDER BY sort_order ASC")
-    List<Category> selectAllCategories();
 
     @Update("UPDATE category SET sort_order = #{sort} WHERE id = #{id}")
     int updateSortOrder(@Param("id") Long id, @Param("sort") Integer sort);
@@ -47,10 +37,12 @@ public interface CategoryMapper {
     @Update("UPDATE category SET icon_url = '' WHERE id = #{id}")
     void deleteIconImage(@Param("id") Long id);
 
-    @Insert("INSERT INTO category (/*columns*/) VALUES (/*values*/)") // 请根据实际情况填写列和值
+    @Insert("INSERT INTO category (/*columns*/) VALUES (/*values*/)")
+        // 请根据实际情况填写列和值
     void insertCategory(Category category);
 
-    @Update("UPDATE category SET /*columns*/ WHERE id = #{id}") // 请根据实际情况填写列和值
+    @Update("UPDATE category SET /*columns*/ WHERE id = #{id}")
+        // 请根据实际情况填写列和值
     void updateCategory(Category category);
 
     @Select("SELECT * FROM category WHERE parent_id = #{parentId}")
@@ -58,5 +50,9 @@ public interface CategoryMapper {
 
     @Delete("DELETE FROM category WHERE id = #{id}")
     void deleteCategory(@Param("id") Long id);
+
+    String findCategoryNameById(String categoryId);
+
+    List<String> findCategories();
 }
 

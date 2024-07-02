@@ -1,4 +1,4 @@
-package com.example.po;
+package com.example.vo;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

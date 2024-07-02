@@ -1,4 +1,4 @@
-package com.example.po;
+package com.example.vo;
 
 import lombok.Data;
 
@@ -15,4 +15,5 @@ public class Product {
     private String goodsSpecificationIds;
     private Double goodsWeight;
     private Boolean isDelete;
+    private String value;
 }

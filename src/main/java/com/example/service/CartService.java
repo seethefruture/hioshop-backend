@@ -6,10 +6,10 @@ import com.example.mapper.AddressMapper;
 import com.example.mapper.CartMapper;
 import com.example.mapper.GoodsMapper;
 import com.example.mapper.ProductMapper;
-import com.example.po.Address;
-import com.example.po.Cart;
-import com.example.po.Goods;
-import com.example.po.Product;
+import com.example.vo.Address;
+import com.example.vo.Cart;
+import com.example.vo.Goods;
+import com.example.vo.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,11 +34,11 @@ public class CartService {
     }
 
     public List<Cart> getCheckedGoodsList(String userId) {
-        return cartMapper.selectCheckedGoodsList(userId);
+        return cartMapper.getCharts(userId, null, null);
     }
 
     public int clearBuyGoods(String userId) {
-        return cartMapper.deleteAllProducts(userId);
+        return cartMapper.deleteCheckedProducts(userId);
     }
 
     public Map<String, Object> getCarts(int type) {
@@ -146,7 +146,7 @@ public class CartService {
             cart.setRetailPrice(retailPrice);
             cart.setChecked(true);
             cart.setNumber(number);
-            cartMapper.update(cart);
+            cartMapper.updateAddAgain(cart);
         }
     }
 
@@ -170,7 +170,7 @@ public class CartService {
     }
 
     public void updateFastCart(String userId) {
-        cartMapper.updateFastCart(userId);
+        cartMapper.deleteFastCart(userId);
     }
 
     public Map<String, Object> checkout(String userId, Long orderFrom, Integer type, String addressId, Integer addType) {
@@ -206,7 +206,7 @@ public class CartService {
         if (StrUtil.isNotEmpty(addressId)) {
             return addressMapper.getDefaultAddress(userId);
         } else {
-            return addressMapper.findByIdAndUserId(addressId, userId);
+            return addressMapper.findById(addressId);
         }
     }
 }

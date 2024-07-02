@@ -1,8 +1,9 @@
 package com.example.api;
 
-import com.example.po.Goods;
-import com.example.po.Product;
+import com.example.vo.Goods;
+import com.example.vo.Product;
 import com.example.service.GoodsService;
+import com.example.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,8 @@ public class GoodsController {
     @Autowired
     private GoodsService goodsService;
 
+    @Autowired
+    private ProductService productService;
     @GetMapping("/index")
     public ResponseEntity<?> index() {
         List<Goods> goodsList = goodsService.getAllGoods();
@@ -64,5 +67,153 @@ public class GoodsController {
     public ResponseEntity<?> count() {
         int goodsCount = goodsService.getGoodsCount();
         return ResponseEntity.ok(goodsCount);
+    }
+
+    @GetMapping("/express-data")
+    public List<String> getExpressData() {
+        return goodsService.getExpressData();
+    }
+
+    @PostMapping("/copy")
+    public String copyGoods(@RequestParam("id") String goodsId) {
+        return goodsService.copyGoods(goodsId);
+    }
+
+    @PostMapping("/update-stock")
+    public void updateStock(
+            @RequestParam("goods_sn") String goodsSn,
+            @RequestParam("goods_number") int goodsNumber) {
+        goodsService.updateStock(goodsSn, goodsNumber);
+    }
+
+    @PostMapping("/update-goods-number")
+    public void updateGoodsNumber() {
+        goodsService.updateGoodsNumber();
+    }
+
+    @GetMapping("/on-sale")
+    public List<Goods> getOnSaleGoods(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size") int size) {
+        return goodsService.getOnSaleGoods(page, size);
+    }
+
+    @GetMapping("/out-of-stock")
+    public List<Goods> getOutOfStockGoods(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size") int size) {
+        return goodsService.getOutOfStockGoods(page, size);
+    }
+
+    @GetMapping("/dropped")
+    public List<Goods> getDroppedGoods(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size") int size) {
+        return goodsService.getDroppedGoods(page, size);
+    }
+
+    @GetMapping("/sort")
+    public List<Goods> sortGoods(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size") int size,
+            @RequestParam(value = "index") int index) {
+        return goodsService.sortGoods(page, size, index);
+    }
+
+    @PostMapping("/sale-status")
+    public void updateSaleStatus(
+            @RequestParam("id") String id,
+            @RequestParam("status") boolean status) {
+        goodsService.updateSaleStatus(id, status);
+    }
+
+    @PostMapping("/status")
+    public void updateProductStatus(@RequestParam("id") String id, @RequestParam("status") Integer status) {
+        productService.updateProductStatus(id, status);
+    }
+
+    @PostMapping("/indexShowStatus")
+    public void updateIndexShowStatus(@RequestParam("id") String id, @RequestParam("status") Boolean status) {
+        productService.updateIndexShowStatus(id, status);
+    }
+
+    @GetMapping("/info")
+    public Map<String, Object> getProductInfo(@RequestParam("id") String id) {
+        return productService.getProductInfo(id);
+    }
+
+    @GetMapping("/categories1")
+    public Map<String, Object> getAllCategory1() {
+        return productService.getAllCategory1();
+    }
+
+    @GetMapping("/categories")
+    public Map<String, Object> getAllCategories() {
+        return productService.getAllCategories();
+    }
+
+    @PostMapping("/store")
+    public String storeProduct(@RequestBody Map<String, Object> values) {
+        return productService.storeProduct(values);
+    }
+
+    @PostMapping("/updatePrice")
+    public void updatePrice(@RequestBody Map<String, Object> data) {
+        productService.updatePrice(data);
+    }
+
+    @PostMapping("/checkSku")
+    public Boolean checkSku(@RequestBody Map<String, Object> info) {
+        return productService.checkSku(info);
+    }
+
+    @PostMapping("/updateSort")
+    public void updateSort(@RequestParam("id") String id, @RequestParam("sort") Integer sort) {
+        productService.updateSort(id, sort);
+    }
+
+    @PostMapping("/updateShortName")
+    public void updateShortName(@RequestParam("id") String id, @RequestParam("short_name") String shortName) {
+        productService.updateShortName(id, shortName);
+    }
+
+    @GetMapping("/galleryList")
+    public Map<String, Object> getGalleryList(@RequestParam("id") String id) {
+        return productService.getGalleryList(id);
+    }
+
+    @PostMapping("/gallery")
+    public void addGallery(@RequestParam("url") String url, @RequestParam("goods_id") String goodsId) {
+        productService.addGallery(url, goodsId);
+    }
+
+    @PostMapping("/getGalleryList")
+    public Map<String, Object> getGalleryListByGoodsId(@RequestParam("goodsId") String goodsId) {
+        return productService.getGalleryListByGoodsId(goodsId);
+    }
+
+    @PostMapping("/deleteGalleryFile")
+    public void deleteGalleryFile(@RequestParam("url") String url, @RequestParam("id") String id) {
+        productService.deleteGalleryFile(url, id);
+    }
+
+    @PostMapping("/galleryEdit")
+    public void editGallery(@RequestBody Map<String, Object> values) {
+        productService.editGallery(values);
+    }
+
+    @PostMapping("/deleteListPicUrl")
+    public void deleteListPicUrl(@RequestParam("id") String id) {
+        productService.deleteListPicUrl(id);
+    }
+
+    @PostMapping("/destroy")
+    public void destroyProduct(@RequestParam("id") String id) {
+        productService.destroyProduct(id);
+    }
+
+    @PostMapping("/uploadHttpsImage")
+    public String uploadHttpsImage(@RequestParam("url") String url) {
+        return productService.uploadHttpsImage(url);
     }
 }

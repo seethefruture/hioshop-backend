@@ -2,10 +2,7 @@ package com.example.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
-import com.example.po.Address;
-import com.example.po.Order;
-import com.example.po.OrderExpress;
-import com.example.po.OrderGoods;
+import com.example.vo.*;
 import com.example.mapper.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +11,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class OrderService {
@@ -321,23 +317,6 @@ public class OrderService {
         }
     }
 
-    /**
-     * 生成订单的编号order_sn
-     *
-     * @return String
-     */
-    public String generateOrderNumber() {
-        Date date = new Date();
-        return String.format("%d%02d%02d%02d%02d%02d%d",
-                date.getYear() + 1900,
-                date.getMonth() + 1,
-                date.getDate(),
-                date.getHours(),
-                date.getMinutes(),
-                date.getSeconds(),
-                ThreadLocalRandom.current().nextInt(100000, 999999));
-    }
-
 
     /**
      * 获取订单可操作的选项
@@ -546,5 +525,238 @@ public class OrderService {
         }
     }
 
+    public Map<String, Object> getOrders(int page, int size, String orderSn, String consignee, String logisticCode, String status) {
+        Map<String, Object> data = new HashMap<>();
+
+        if (logisticCode.isEmpty()) {
+            List<Order> orders = orderMapper.findOrders(page, size, orderSn, consignee, status);
+            for (Order order : orders) {
+                order.setGoodsList(orderGoodsMapper.findGoodsByOrderId(order.getId()));
+                order.setGoodsCount(order.getGoodsList().stream().mapToInt(OrderGoods::getNumber).sum());
+
+                // User info
+                User user = orderMapper.findUserById(order.getUserId());
+                if (user != null) {
+                    user.setNickname(new String(Base64.getDecoder().decode(user.getNickname()), StandardCharsets.UTF_8));
+                } else {
+                    user.setNickname("已删除");
+                }
+                order.setUserInfo(user);
+
+                // Region info
+                String provinceName = regionMapper.findNameById(order.getProvince());
+                String cityName = regionMapper.findNameById(order.getCity());
+                String districtName = regionMapper.findNameById(order.getDistrict());
+                order.setFullRegion(provinceName + cityName + districtName);
+
+                order.setPostscript(new String(Base64.getDecoder().decode(order.getPostscript()), StandardCharsets.UTF_8));
+
+                // Format times
+                order.setAddTime(order.getAddTimeFormatted());
+                order.setPayTime(order.getPayTimeFormatted());
+
+                // Status text
+                order.setOrderStatusText(orderMapper.getOrderStatusText(order.getId()));
+
+                // Express info
+                OrderExpress express = orderExpressMapper.findByOrderId(order.getId());
+                if (express != null) {
+                    order.setExpressInfo(express.getShipperName() + express.getLogisticCode());
+                } else {
+                    order.setExpressInfo("");
+                }
+            }
+            data.put("data", orders);
+        } else {
+            OrderExpress express = orderExpressMapper.findByLogisticCode(logisticCode);
+            if (express != null) {
+                int orderId = express.getOrderId();
+                List<Order> orders = orderMapper.findOrdersById(page, size, orderId);
+                // Process orders as before
+            }
+        }
+
+        return data;
+    }
+
+    public boolean getAutoStatus() {
+        // Retrieve auto delivery status
+        return orderMapper.getAutoStatus();
+    }
+
+    public Map<String, Object> getDeliveryOrders(int page, int size, String status) {
+        Map<String, Object> data = new HashMap<>();
+        List<Order> orders = orderMapper.findDeliveryOrders(page, size, status);
+        for (Order order : orders) {
+            order.setGoodsList(orderGoodsMapper.findGoodsByOrderId(order.getId()));
+            order.setGoodsCount(order.getGoodsList().stream().mapToInt(OrderGoods::getNumber).sum());
+
+            // Region info
+            String provinceName = regionMapper.findNameById(order.getProvince());
+            String cityName = regionMapper.findNameById(order.getCity());
+            String districtName = regionMapper.findNameById(order.getDistrict());
+            order.setAddress(provinceName + cityName + districtName + order.getAddress());
+
+            order.setPostscript(new String(Base64.getDecoder().decode(order.getPostscript()), StandardCharsets.UTF_8));
+            order.setAddTime(order.getAddTimeFormatted());
+            order.setOrderStatusText(orderMapper.getOrderStatusText(order.getId()));
+            order.setButtonText(orderMapper.getOrderBtnText(order.getId()));
+        }
+        data.put("data", orders);
+        return data;
+    }
+
+    @Transactional
+    public String saveGoodsList(Map<String, Object> payload) {
+        String id = (String) payload.get("id");
+        String orderId = (String) payload.get("order_id");
+        int number = Integer.parseInt((String) payload.get("number"));
+        double price = Double.parseDouble((String) payload.get("retail_price"));
+        int addOrMinus = Integer.parseInt((String) payload.get("addOrMinus"));
+        double changePrice = number * price;
+
+        if (addOrMinus == 0) {
+            orderGoodsMapper.decrementNumber(id, number);
+            orderMapper.decrementOrderPrice(orderId, changePrice);
+        } else if (addOrMinus == 1) {
+            orderGoodsMapper.incrementNumber(id, number);
+            orderMapper.incrementOrderPrice(orderId, changePrice);
+        }
+
+        String orderSn = orderMapper.generateOrderNumber();
+        orderMapper.updateOrderSn(orderId, orderSn);
+
+        return orderSn;
+    }
+
+    @Transactional
+    public String goodsListDelete(Map<String, Object> payload) {
+        String id = (String) payload.get("id");
+        String orderId = (String) payload.get("order_id");
+        int number = Integer.parseInt((String) payload.get("number"));
+        double price = Double.parseDouble((String) payload.get("retail_price"));
+        double changePrice = number * price;
+
+        orderGoodsMapper.deleteGoods(id);
+        orderMapper.decrementOrderPrice(orderId, changePrice);
+
+        String orderSn = orderMapper.generateOrderNumber();
+        orderMapper.updateOrderSn(orderId, orderSn);
+
+        return orderSn;
+    }
+
+    public boolean saveAdminMemo(Map<String, Object> payload) {
+        String id = (String) payload.get("id");
+        String text = (String) payload.get("text");
+        return orderMapper.updateAdminMemo(id, text);
+    }
+
+    public Map<String, Object> savePrintInfo(Long id, String printInfo) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> saveExpressValueInfo(Long id, String expressValue) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> saveRemarkInfo(Long id, String remark) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> getOrderDetail(Long orderId) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public List<Region> getAllRegion() {
+        // Your implementation here
+        return regionMapper.findAll();
+    }
+
+    public void orderPack(Long orderId) {
+        // Your implementation here
+    }
+
+    public void orderReceive(Long orderId) {
+        // Your implementation here
+    }
+
+    public void orderPrice(Long orderId, Double goodsPrice, Double freightPrice, Double actualPrice) {
+        // Your implementation here
+    }
+
+    public Map<String, Object> getOrderExpress(Long orderId) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> getPrintTest() {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> getMianExpress(Long orderId, Map<String, Object> sender, Map<String, Object> receiver) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> rePrintExpress(Long orderId) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> directPrintExpress(Long orderId) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> goDelivery(Long orderId) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> goPrintOnly(Long orderId) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> orderDelivery(Long orderId, Integer method, Long deliveryId, String logisticCode) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> checkExpress(Long orderId) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> saveAddress(String orderSn, String name, String mobile, String cAddress, List<Long> addOptions) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> store(Order order) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> changeStatus(String orderSn, Integer status) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> destroy(Long id) {
+        // Your implementation here
+        return new HashMap<>();
+    }
+
+    public List<Map<String, Object>> getGoodsSpecification(Long goodsId) {
+        // Your implementation here
+        return orderMapper.getGoodsSpecification(goodsId);
+    }
 
 }

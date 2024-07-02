@@ -4,10 +4,10 @@ import com.example.mapper.AdMapper;
 import com.example.mapper.NoticeMapper;
 import com.example.mapper.OrderMapper;
 import com.example.mapper.SettingsMapper;
-import com.example.po.Ad;
-import com.example.po.Notice;
-import com.example.po.Order;
-import com.example.po.Settings;
+import com.example.vo.Ad;
+import com.example.vo.Notice;
+import com.example.vo.Order;
+import com.example.vo.Settings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +42,7 @@ public class TimeTaskService {
         List<Notice> notices = noticeMapper.findActiveNotices();
         for (Notice notice : notices) {
             if (currentTime > notice.getEndTime()) {
-                notice.setIsDelete(1);
+                notice.setIsDelete(true);
                 noticeMapper.update(notice);
             }
         }
@@ -56,10 +56,10 @@ public class TimeTaskService {
         }
 
         // Update ads
-        List<Ad> ads = adMapper.findExpiredAds(currentTime);
+        List<Ad> ads = adMapper.findExpiredAds();
         for (Ad ad : ads) {
             ad.setEnabled(false);
-            adMapper.update(ad);
+            adMapper.updateEnable(ad);
         }
 
         // Confirm orders

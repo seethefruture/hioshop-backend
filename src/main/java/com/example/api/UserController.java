@@ -1,7 +1,7 @@
 package com.example.api;
 
 import cn.hutool.core.util.StrUtil;
-import com.example.po.User;
+import com.example.vo.User;
 import com.example.service.JwtService;
 import com.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

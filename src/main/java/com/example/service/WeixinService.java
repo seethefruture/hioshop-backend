@@ -1,14 +1,13 @@
 package com.example.service;
 
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.example.mapper.UserMapper;
-import com.example.po.Order;
-import com.example.po.OrderGoods;
-import com.example.po.User;
+import com.example.mapper.*;
+import com.example.vo.Order;
+import com.example.vo.OrderGoods;
+import com.example.vo.User;
 import com.example.utils.MySnowFlakeGenerator;
 import com.example.utils.SignatureUtil;
-import com.example.mapper.OrderMapper;
-import com.example.mapper.ProductMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +17,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import com.example.po.Product;
+import com.example.vo.Product;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -42,7 +42,12 @@ public class WeixinService {
 
     @Autowired
     private ProductMapper productMapper;
-
+    @Autowired
+    private GoodsMapper goodsMapper;
+    @Autowired
+    private SettingsMapper settingsMapper;
+    @Autowired
+    private CartMapper cartMapper;
 
     public Map<String, Object> loginByWeixin(String code) throws Exception {
         String url = "https://api.weixin.qq.com/sns/jscode2session?appid=" + appId + "&secret=" + secret + "&js_code=" + code + "&grant_type=authorization_code";
@@ -183,5 +188,105 @@ public class WeixinService {
         ResponseEntity<byte[]> response = restTemplate.postForEntity(wxacodeUrl, request, byte[].class);
 
         return Base64.getEncoder().encodeToString(response.getBody());
+    }
+
+    public boolean checkLogin() {
+        // Assuming `think.userId` is replaced with some session check logic
+        int userId = getCurrentUserId(); // Replace with actual logic to get current user ID
+        return userId != 0;
+    }
+
+    public Map<String, Object> getIndexInfo() {
+        int goodsOnsale = goodsMapper.countOnSale();
+        int orderToDelivery = orderMapper.countToDelivery();
+        int userCount = userMapper.countUsers();
+        int timestamp = settingsMapper.getCountdown();
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("user", userCount);
+        info.put("goodsOnsale", goodsOnsale);
+        info.put("timestamp", timestamp);
+        info.put("orderToDelivery", orderToDelivery);
+
+        return info;
+    }
+
+    public Map<String, String> getQiniuToken() {
+//        String token = qiniuService.getQiniuToken();
+        String token = "";
+//        String domain = qiniuService.getDomain();
+        String domain = "";
+
+        Map<String, String> info = new HashMap<>();
+        info.put("token", token);
+        info.put("url", domain);
+
+        return info;
+    }
+
+    public Map<String, Object> getMainData(int index) {
+        Date beginOfToday = DateUtil.beginOfDay(new Date()).toJdkDate();
+        long beginOfTodayTimestamp = beginOfToday.getTime();
+        long beginOfYesterdayTimestamp = DateUtil.offsetDay(beginOfToday, -1).getTime();
+        long beginOfLastSevenDayTimestamp = DateUtil.offsetDay(beginOfToday, -7).getTime();
+        long beginOfLastThirtyDayTimestamp = DateUtil.offsetDay(beginOfToday, -30).getTime();
+        long beginTimeStamp, endTimeStamp;
+        switch (index) {
+            case 0: // 今天
+                beginTimeStamp = beginOfTodayTimestamp;
+                endTimeStamp = System.currentTimeMillis();
+                break;
+            case 1: // 昨天
+                beginTimeStamp = beginOfYesterdayTimestamp;
+                endTimeStamp = beginOfTodayTimestamp;
+                break;
+            case 2: // 七天
+                beginTimeStamp = beginOfLastSevenDayTimestamp;
+                endTimeStamp = beginOfTodayTimestamp;
+                break;
+            case 3: // 三十天
+                beginTimeStamp = beginOfLastThirtyDayTimestamp;
+                endTimeStamp = beginOfTodayTimestamp;
+                break;
+            default:
+                throw new RuntimeException("查询类型暂不支持");
+        }
+
+        int addCart = cartMapper.countNewCarts(beginTimeStamp, endTimeStamp);
+        List<User> newData = userMapper.findNewUsers(beginTimeStamp, endTimeStamp);
+        int newUser = newData.size();
+        int oldUser = userMapper.countOldUsers(beginTimeStamp, endTimeStamp);
+        int addOrderNum = orderMapper.countNewOrders(beginTimeStamp, endTimeStamp);
+        int addOrderSum = orderMapper.sumOrderPrice(beginTimeStamp, endTimeStamp);
+        int payOrderNum = orderMapper.countPaidOrders(beginTimeStamp, endTimeStamp);
+        int payOrderSum = orderMapper.sumPaidOrderPrice(beginTimeStamp, endTimeStamp);
+
+        Map<String, Object> info = new HashMap<>();
+        // Fetch data based on index
+        // Add logic for fetching new and old users, order statistics, etc.
+
+        // Sample code to fetch data (you need to implement the actual logic)
+
+
+        info.put("newUser", newUser);
+        info.put("oldUser", oldUser);
+        info.put("addCart", addCart);
+        info.put("newData", newData);
+//        info.put("oldData", oldData);
+        info.put("addOrderNum", addOrderNum);
+        info.put("addOrderSum", addOrderSum);
+        info.put("payOrderNum", payOrderNum);
+        info.put("payOrderSum", payOrderSum);
+
+        return info;
+    }
+
+    private String formatTimestamp(Long timestamp) {
+        return Instant.ofEpochSecond(timestamp).toString(); // Customize as needed
+    }
+
+    private int getCurrentUserId() {
+        // Implement logic to retrieve the current user ID
+        return 0;
     }
 }

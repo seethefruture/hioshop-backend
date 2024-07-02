@@ -1,7 +1,7 @@
 package com.example.mapper;
 
-import com.example.po.Order;
-import com.example.po.OrderGoods;
+import com.example.vo.Order;
+import com.example.vo.OrderGoods;
 import org.apache.ibatis.annotations.*;
 
 import java.util.Date;
@@ -136,4 +136,14 @@ public interface OrderMapper {
             "</script>"
     })
     int updatePayData(@Param("orderId") String orderId, @Param("data") Map<String, Object> data);
+
+    int sumOrderPrice(int index, long todayTimestamp, long yesTimestamp, long sevenTimestamp, long thirtyTimestamp);
+
+    int countNewOrders(int index, long todayTimestamp, long yesTimestamp, long sevenTimestamp, long thirtyTimestamp);
+
+    int countPaidOrders(int index, long todayTimestamp, long yesTimestamp, long sevenTimestamp, long thirtyTimestamp);
+
+    int sumPaidOrderPrice(int index, long todayTimestamp, long yesTimestamp, long sevenTimestamp, long thirtyTimestamp);
+
+    int countToDelivery();
 }

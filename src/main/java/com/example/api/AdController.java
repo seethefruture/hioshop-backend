@@ -1,7 +1,9 @@
 package com.example.api;
 
-import com.example.po.Ad;
+import com.example.service.GoodsService;
+import com.example.vo.Ad;
 import com.example.service.AdService;
+import com.example.vo.Goods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,8 @@ public class AdController {
 
     @Autowired
     private AdService adService;
+    @Autowired
+    private GoodsService goodsService;
 
     @GetMapping("/index")
     public ResponseEntity<?> index(@RequestParam(defaultValue = "1") int page,
@@ -45,8 +49,8 @@ public class AdController {
 
     @GetMapping("/getallrelate")
     public ResponseEntity<?> getAllRelate() {
-        List<Map<String, Object>> data = adService.getAllRelatedGoods();
-        return ResponseEntity.ok(data);
+        List<Goods> allGoods = goodsService.getAllGoods();
+        return ResponseEntity.ok(allGoods);
     }
 
     @PostMapping("/destroy")

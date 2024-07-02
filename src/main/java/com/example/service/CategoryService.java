@@ -3,8 +3,8 @@ package com.example.service;
 import cn.hutool.core.util.StrUtil;
 import com.example.mapper.CategoryMapper;
 import com.example.mapper.GoodsMapper;
-import com.example.po.Category;
-import com.example.po.Goods;
+import com.example.vo.Category;
+import com.example.vo.Goods;
 import com.example.utils.MySnowFlakeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ public class CategoryService {
     private GoodsMapper goodsMapper;
 
     public Map<String, Object> getCategoryList(Long categoryId) {
-        List<Category> categories = categoryMapper.selectCategories(10); // TODO 这里好像有问题
+        List<Category> categories = categoryMapper.selectRootCategories();
         Category currentCategory = null;
         if (categoryId != null) {
             currentCategory = categoryMapper.selectCategoryById(categoryId);
@@ -38,15 +38,6 @@ public class CategoryService {
         return result;
     }
 
-    public List<Long> getChildCategoryId(Long parentId) {
-        return categoryMapper.findIdsByParentId(parentId);
-    }
-
-    public List<Long> getCategoryWhereIn(Long categoryId) {
-        List<Long> childIds = getChildCategoryId(categoryId);
-        childIds.add(categoryId);
-        return childIds;
-    }
 
     public Category getCategory(Long categoryId) {
         return categoryMapper.selectCategoryById(categoryId);

@@ -1,9 +1,11 @@
 package com.example.mapper;
 
-import com.example.po.Product;
+import com.example.vo.Goods;
+import com.example.vo.Product;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ProductMapper {
@@ -29,4 +31,26 @@ public interface ProductMapper {
 
     @Select(" SELECT * FROM product WHERE goods_id = #{goodsId} and goods_specification_ids=#{goodsSpecificationIds} and is_delete=#{isDelete}")
     Product findProductByGoodsDetail(String goodsId, String goodsSpecificationIds, int isDelete);
+
+    List<Product> findProductsByGoodsId(String id);
+
+    void updateGoodsNumberBySn(String goodsSn, int goodsNumber);
+
+    void updateSaleStatusByGoodsId(String id, int saleStatus);
+
+    int sumGoodsNumberByGoodsId(String id);
+
+    void updateProductStatus(String id, Integer status);
+
+    void updateCartProductStatus(String id, Integer status);
+
+    void updateProductInfo(String id, Goods goods);
+
+    void deleteOldProductData(String id);
+
+    void updatePrice(Map<String, Object> data);
+
+    Boolean isSkuUnique(Map<String, Object> info);
+
+    void markProductsAsDeleted(String id);
 }

@@ -4,8 +4,8 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.example.mapper.FootprintMapper;
 import com.example.mapper.GoodsMapper;
-import com.example.po.Footprint;
-import com.example.po.Goods;
+import com.example.vo.Footprint;
+import com.example.vo.Goods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

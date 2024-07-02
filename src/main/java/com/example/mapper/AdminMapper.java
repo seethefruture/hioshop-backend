@@ -16,19 +16,11 @@ public interface AdminMapper {
 
     void insert(Admin admin);
 
-    void update(Admin admin);
+    void updateUsernameAndPassword(@Param("id") String id, @Param("username") String username, @Param("password") String password);
 
-    Admin selectByUsername(@Param("username") String username, @Param("id") Long id);
+    void updateUsername(@Param("id") String id, @Param("username") String username);
+
+    Admin selectByUsername(@Param("username") String username);
 
     void deleteById(@Param("id") Long id);
-
-    Map<String, Object> selectShowSettings();
-
-    void updateShowSettings(Map<String, Object> settings);
-
-    void updateAutoStatus(@Param("status") Boolean status);
-
-    void updateShipperSettings(Map<String, Object> settings);
-
-    Map<String, Object> selectSenderInfo();
 }

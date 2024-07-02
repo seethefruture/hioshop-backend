@@ -2,7 +2,7 @@ package com.example.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.example.mapper.UserMapper;
-import com.example.po.User;
+import com.example.vo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,9 @@
 package com.example.service;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.example.mapper.AdMapper;
-import com.example.po.Ad;
+import com.example.vo.Ad;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +19,10 @@ public class AdService {
     private AdMapper adMapper;
 
     public Map<String, Object> getAdList(int page, int size) {
-        List<Ad> ads = adMapper.findAds(page, size);
+        List<Ad> ads = adMapper.findExpiredAdsPage(System.currentTimeMillis(), page, size);
         for (Ad ad : ads) {
             if (ad.getEndTime() != 0) {
-                ad.setEndTimeFormatted(DateUtil.format( new Date(ad.getEndTime()),"yyyy-MM-dd HH:mm:ss"));
+                ad.setEndTimeFormatted(DateUtil.format(new Date(ad.getEndTime()), "yyyy-MM-dd HH:mm:ss"));
             }
         }
         Map<String, Object> result = new HashMap<>();
@@ -40,10 +41,10 @@ public class AdService {
     }
 
     public void saveAd(Map<String, Object> values) {
-        int id = (int) values.get("id");
+        String id = String.valueOf(values.get("id"));
         values.put("end_time", (int) (System.currentTimeMillis() / 1000));
-        if (id > 0) {
-            adMapper.updateAd(values);
+        if (StrUtil.isNotEmpty(id)) {
+            adMapper.updateEndTime(id, System.currentTimeMillis());
         } else {
             if (adMapper.findAdByGoodsId((int) values.get("goods_id")) == null) {
                 values.remove("id");
@@ -52,22 +53,19 @@ public class AdService {
                 } else {
                     values.put("goods_id", 0);
                 }
-                adMapper.addAd(values);
+                adMapper.insert(values);
             } else {
                 throw new RuntimeException("发生错误");
             }
         }
     }
 
-    public List<Map<String, Object>> getAllRelatedGoods() {
-        return adMapper.findAllRelatedGoods();
+
+    public void destroyAd(String id) {
+        adMapper.delete(id);
     }
 
-    public void destroyAd(int id) {
-        adMapper.markAdAsDeleted(id);
-    }
-
-    public void updateSaleStatus(int id, boolean enabled) {
-        adMapper.updateSaleStatus(id, enabled ? 1 : 0);
+    public void updateSaleStatus(String id, boolean enabled) {
+        adMapper.updateEnable(id, enabled);
     }
 }

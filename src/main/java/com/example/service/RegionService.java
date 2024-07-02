@@ -1,7 +1,7 @@
 package com.example.service;
 
 import com.example.mapper.RegionMapper;
-import com.example.po.Region;
+import com.example.vo.Region;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

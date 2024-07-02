@@ -1,6 +1,6 @@
 package com.example.mapper;
 
-import com.example.po.Specification;
+import com.example.vo.Specification;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

@@ -1,7 +1,7 @@
 package com.example.service;
 
 import com.example.mapper.OrderExpressMapper;
-import com.example.po.OrderExpress;
+import com.example.vo.OrderExpress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,10 +1,10 @@
 package com.example.service;
 
 import com.example.mapper.*;
-import com.example.po.Ad;
-import com.example.po.Category;
-import com.example.po.Goods;
-import com.example.po.Notice;
+import com.example.vo.Ad;
+import com.example.vo.Category;
+import com.example.vo.Goods;
+import com.example.vo.Notice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,10 +34,10 @@ public class AppService {
     public Map<String, Object> getAppInfo() {
         String userId = getLoginUserId();
 
-        List<Ad> banner = adMapper.findEnabledAds();
+        List<Ad> banner = adMapper.findExpiredAds();
         List<Notice> notice = noticeMapper.findActiveNotices();
-        List<Category> channel = categoryMapper.findChannelCategories(); // ischannel还不知道啥意思
-        List<Category> categoryList = categoryMapper.findShowCategories();
+        List<Category> channel = categoryMapper.findChannelCategories();
+        List<Category> categoryList = categoryMapper.findShowCategories(); // img_url as banner, p_height as height
 
         List<Goods> allCategoryGoods = goodsMapper.findCategoryGoods(categoryList.stream().map(Category::getId).collect(Collectors.toList()));
         Map<String, List<Goods>> allCategoryGoodsGroupByCategory = allCategoryGoods.stream().collect(Collectors.groupingBy(Goods::getCategoryId));

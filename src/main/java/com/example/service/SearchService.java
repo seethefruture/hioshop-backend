@@ -2,7 +2,7 @@ package com.example.service;
 
 import com.example.mapper.KeywordsMapper;
 import com.example.mapper.SearchHistoryMapper;
-import com.example.po.Keywords;
+import com.example.vo.Keywords;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

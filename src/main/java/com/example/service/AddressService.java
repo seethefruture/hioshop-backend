@@ -2,7 +2,7 @@ package com.example.service;
 
 import com.example.mapper.AddressMapper;
 import com.example.mapper.RegionMapper;
-import com.example.po.Address;
+import com.example.vo.Address;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

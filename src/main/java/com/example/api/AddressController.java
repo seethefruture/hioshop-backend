@@ -1,6 +1,6 @@
 package com.example.api;
 
-import com.example.po.Address;
+import com.example.vo.Address;
 import com.example.service.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

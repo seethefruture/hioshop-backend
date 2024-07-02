@@ -1,6 +1,6 @@
 package com.example.mapper;
 
-import com.example.po.Footprint;
+import com.example.vo.Footprint;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;

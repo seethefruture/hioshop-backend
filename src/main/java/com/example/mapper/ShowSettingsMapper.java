@@ -11,4 +11,12 @@ public interface ShowSettingsMapper {
 
     @Select("SELECT * FROM show_settings WHERE id = #{id}")
     Map<String, Object> findById(@Param("id") Long id);
+
+
+    Map<String, Object> selectShowSettings();
+
+    void updateShowSettings(Map<String, Object> settings);
+
+    void updateAutoStatus(@Param("status") Boolean status);
+
 }

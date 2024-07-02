@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.example.demo.mapper.CartMapper">
+<mapper namespace="com.example.mapper.CartMapper">
+    <insert id="insert">
+        INSERT INTO cart (id, user_id, goods_id, goods_sn, product_id, goods_name, goods_aka, goods_weight, add_price,
+                          retail_price, number, goods_specifition_name_value, goods_specifition_ids, checked,
+                          list_pic_url, freight_template_id, is_on_sale, add_time, is_fast, is_delete)
+        VALUES (#{id}, #{userId}, #{goodsId}, #{goodsSn}, #{productId}, #{goodsName}, #{goodsAka}, #{goodsWeight},
+                #{addPrice},
+                #{retailPrice}, #{number}, #{goodsSpecificationNameValue}, #{goodsSpecifitionIds}, #{checked},
+                #{listPicUrl}, #{freightTemplateId}, #{isOnSale}, #{addTime}, #{isFast}, 0)
+    </insert>
+
     <update id="deleteProducts">
         UPDATE cart
         SET is_delete = 1
@@ -8,6 +18,7 @@
           AND is_delete = 0
           AND product_id IN #{productIds}
     </update>
+
     <update id="updateCart">
         <foreach collection="cartList" item="cart" separator=";">
             UPDATE cart
@@ -17,7 +28,30 @@
             AND user_id = #{cart.userId}
             AND is_delete = 0
         </foreach>
+    </update>
 
+    <update id="updateAddAgain">
+        UPDATE cart
+        SET retail_price = #{retailPrice},
+            checked      = #{checked},
+            number       = #{number}
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteCheckedProducts">
+        UPDATE cart
+        SET is_delete = 1
+        WHERE user_id = #{userId}
+          AND checked = 1
+          AND is_delete = 0
+    </update>
+
+    <update id="deleteFastCart">
+        UPDATE cart
+        SET is_delete = 1
+        WHERE user_id = #{userId}
+          AND is_delete = 0
+          AND is_fast = 1
     </update>
 
     <select id="getCartCountByUserId" resultType="java.lang.Integer">
@@ -31,6 +65,7 @@
         WHERE user_id = #{userId}
           AND is_delete = 0
     </select>
+
     <select id="getCharts" resultType="com.example.po.Cart">
         SELECT *
         FROM cart
@@ -44,4 +79,12 @@
         AND checked = '1'
         AND is_delete = 0
     </select>
+
+    <select id="countNewCarts" resultType="java.lang.Integer">
+        select count(*)
+        from cart
+        where add_time between #{beginTimeStamp} and #{endTimeStamp}
+          and is_delete = 0
+    </select>
+
 </mapper>

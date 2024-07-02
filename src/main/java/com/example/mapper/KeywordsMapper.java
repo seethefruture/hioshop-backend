@@ -1,6 +1,6 @@
 package com.example.mapper;
 
-import com.example.po.Keywords;
+import com.example.vo.Keywords;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 

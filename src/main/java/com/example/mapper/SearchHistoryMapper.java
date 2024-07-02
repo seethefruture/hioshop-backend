@@ -1,6 +1,6 @@
 package com.example.mapper;
 
-import com.example.po.SearchHistory;
+import com.example.vo.SearchHistory;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;

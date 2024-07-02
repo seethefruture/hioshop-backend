@@ -1,6 +1,6 @@
 package com.example.mapper;
 
-import com.example.po.Settings;
+import com.example.vo.Settings;
 import org.apache.ibatis.annotations.*;
 
 @Mapper
@@ -11,4 +11,6 @@ public interface SettingsMapper {
 
     @Update("UPDATE settings SET countdown = #{countdown}, reset = #{reset} WHERE id = #{id}")
     int update(Settings settings);
+
+    int getCountdown();
 }

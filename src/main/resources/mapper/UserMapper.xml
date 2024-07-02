@@ -14,7 +14,7 @@
         WHERE
             id = #{id}
     </update>
-    <select id="findById" resultType="com.example.po.User">
+    <select id="findById" resultType="com.example.vo.User">
         select *
         from user
         where id = #{id}

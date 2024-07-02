@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.example.demo.mapper.AddressMapper">
+<mapper namespace="com.example.mapper.AddressMapper">
+    <insert id="insert">
+        INSERT INTO address (name, mobile, province_id, city_id, district_id, address, user_id, is_default)
+        VALUES (#{name}, #{mobile}, #{provinceId}, #{cityId}, #{districtId}, #{address}, #{userId}, #{isDefault})
+    </insert>
+
+    <update id="delete">
+        UPDATE address
+        SET is_delete = 1
+        where id = #{id}
+    </update>
+    <update id="update">
+        UPDATE address
+        SET name        = #{name},
+            mobile      = #{mobile},
+            province_id = #{provinceId},
+            city_id     = #{cityId},
+            district_id = #{districtId},
+            address     = #{address},
+            is_default  = #{isDefault}
+        WHERE id = #{id}
+          AND user_id = #{userId}
+    </update>
+
     <select id="findAddressFullNameByUserId" resultType="com.example.po.Address">
         SELECT A.*,
                R1.name                           AS province_name,
@@ -25,5 +48,19 @@
                  LEFT JOIN region R2 on A.city_id = R2.id
                  LEFT JOIN region R3 on A.district_id = R3.id
         WHERE A.id = #{id}
+    </select>
+
+    <select id="findById" resultType="com.example.po.Address">
+        SELECT *
+        FROM address
+        WHERE id = #{id}
+    </select>
+
+    <select id="getDefaultAddress" resultType="com.example.po.Address">
+        SELECT *
+        FROM address
+        WHERE user_id = #{userId}
+          AND is_default = 1
+          AND is_delete = 0
     </select>
 </mapper>

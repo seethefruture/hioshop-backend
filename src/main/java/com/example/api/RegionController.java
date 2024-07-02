@@ -1,6 +1,6 @@
 package com.example.api;
 
-import com.example.po.Region;
+import com.example.vo.Region;
 import com.example.service.RegionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

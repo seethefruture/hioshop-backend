@@ -1,6 +1,7 @@
 package com.example.api;
 
 import com.example.service.WeixinService;
+import com.example.utils.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,4 +45,31 @@ public class WeixinController {
 //            return "error";
 //        }
 //    }
+
+    @GetMapping("/checkLogin")
+    public Map<String, Object> checkLogin() {
+        boolean loggedIn = weixinService.checkLogin();
+        if (!loggedIn) {
+            return ResponseUtil.error(404, "请登录");
+        }
+        return ResponseUtil.success();
+    }
+
+    @GetMapping("/index")
+    public Map<String, Object> index() {
+        Map<String, Object> info = weixinService.getIndexInfo();
+        return ResponseUtil.success(info);
+    }
+
+    @GetMapping("/getQiniuToken")
+    public Map<String, Object> getQiniuToken() {
+        Map<String, String> info = weixinService.getQiniuToken();
+        return ResponseUtil.success(info);
+    }
+
+    @GetMapping("/main")
+    public Map<String, Object> main(@RequestParam("pindex") int index) {
+        Map<String, Object> info = weixinService.getMainData(index);
+        return ResponseUtil.success(info);
+    }
 }

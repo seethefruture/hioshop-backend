@@ -1,7 +1,7 @@
 package com.example.api;
 
-import com.example.po.Admin;
-import com.example.po.User;
+import com.example.vo.Admin;
+import com.example.vo.User;
 import com.example.service.AdminService;
 import com.example.service.JwtService;
 import com.example.service.UserService;

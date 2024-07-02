@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.mapper.AdMapper">
-    <select id="findAds" resultType="com.example.po.Ad">
-        SELECT *
-        FROM ad
-        WHERE is_delete = 0
-        ORDER BY id ASC
-        LIMIT #{page}, #{size}
-    </select>
 
     <update id="updateSortOrder">
         UPDATE ad
@@ -21,14 +14,6 @@
         WHERE id = #{id}
     </select>
 
-    <update id="updateAd">
-        UPDATE ad SET
-        <foreach collection="ad" index="key" item="value" separator=",">
-            ${key} = #{value}
-        </foreach>
-        WHERE id = #{id}
-    </update>
-
     <select id="findAdByGoodsId" resultType="com.example.po.Ad">
         SELECT *
         FROM ad
@@ -36,33 +21,44 @@
           AND is_delete = 0
     </select>
 
-    <insert id="addAd">
-        INSERT INTO ad
-        <foreach collection="ad" index="key" item="value" separator=",">
-            ${key}
-        </foreach>
-        VALUES
-        <foreach collection="ad" index="key" item="value" separator=",">
-            #{value}
-        </foreach>
+    <insert id="insert">
+        insert into ad (id, link_type, link, goods_id, image_url, end_time, enabled, sort_order, is_delete)
+        values (#{id}, #{linkType}, #{link}, #{goodsId}, #{imageUrl}, #{endTime}, #{enabled}, #{sortOrder}, 0);
     </insert>
 
-    <select id="findAllRelatedGoods" resultType="map">
-        SELECT id, name, list_pic_url
-        FROM goods
-        WHERE is_on_sale = 1
-          AND is_delete = 0
+    <select id="findExpiredAds" resultType="com.example.po.Ad">
+        SELECT *
+        FROM ad
+        WHERE end_time &lt; UNIX_TIMESTAMP()
+          AND enabled = 1
+          and is_delete = 0
     </select>
 
-    <update id="markAdAsDeleted">
+    <select id="findExpiredAdsPage" resultType="com.example.po.Ad">
+        SELECT *
+        FROM ad
+        WHERE end_time &lt; UNIX_TIMESTAMP()
+          AND enabled = 1
+          and is_delete = 0
+        limit #{page},#{size}
+    </select>
+
+    <update id="delete">
         UPDATE ad
         SET is_delete = 1
         WHERE id = #{id}
     </update>
 
-    <update id="updateSaleStatus">
+
+    <update id="updateEnable">
         UPDATE ad
         SET enabled = #{enabled}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateEndTime">
+        UPDATE ad
+        SET end_time = #{endTime}
         WHERE id = #{id}
     </update>
 </mapper>

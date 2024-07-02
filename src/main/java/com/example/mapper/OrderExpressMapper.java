@@ -1,6 +1,6 @@
 package com.example.mapper;
 
-import com.example.po.OrderExpress;
+import com.example.vo.OrderExpress;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

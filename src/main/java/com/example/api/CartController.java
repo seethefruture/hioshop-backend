@@ -2,7 +2,7 @@ package com.example.api;
 
 import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.example.po.Cart;
+import com.example.vo.Cart;
 import com.example.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

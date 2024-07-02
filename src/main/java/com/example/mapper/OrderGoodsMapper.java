@@ -1,6 +1,6 @@
 package com.example.mapper;
 
-import com.example.po.OrderGoods;
+import com.example.vo.OrderGoods;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;

@@ -1,6 +1,6 @@
 package com.example.api;
 
-import com.example.po.Category;
+import com.example.vo.Category;
 import com.example.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

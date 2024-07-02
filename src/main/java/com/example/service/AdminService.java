@@ -1,7 +1,7 @@
 package com.example.service;
 
 import com.example.mapper.AdminMapper;
-import com.example.po.Admin;
+import com.example.vo.Admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -43,23 +43,23 @@ public class AdminService {
 
     public void saveAdmin(Map<String, Object> payload) {
         Admin admin = new Admin();
-        admin.setUsername((String) payload.get("username"));
-        admin.setId(((Number) payload.get("id")).longValue());
+        String id = String.valueOf(payload.get("id"));
+        String username = (String) payload.get("username");
 
         if ((Boolean) payload.get("change")) {
             String newPassword = (String) payload.get("newpassword");
             if (!newPassword.trim().isEmpty()) {
                 newPassword = DigestUtils.md5DigestAsHex((newPassword + admin.getPasswordSalt()).getBytes(StandardCharsets.UTF_8));
-                admin.setPassword(newPassword);
+                adminMapper.updateUsernameAndPassword(id, username, newPassword);
             }
         }
 
-        Admin existingAdmin = adminMapper.selectByUsername(admin.getUsername(), admin.getId());
+        Admin existingAdmin = adminMapper.selectByUsername(admin.getUsername());
         if (existingAdmin != null) {
             throw new RuntimeException("重名了");
         }
 
-        adminMapper.update(admin);
+        adminMapper.updateUsername(id, username);
     }
 
     public void deleteAdmin(Long id) {
@@ -87,11 +87,10 @@ public class AdminService {
     }
 
     public Admin login(String username, String password, String ip) throws Exception {
-        Admin admin = adminMapper.selectByUsername(username, null);
+        Admin admin = adminMapper.selectByUsername(username);
         if (admin == null) {
             throw new Exception("用户名或密码不正确!");
         }
-
         String passwordHash = DigestUtils.md5DigestAsHex((password + admin.getPasswordSalt()).getBytes(StandardCharsets.UTF_8));
         if (!passwordHash.equals(admin.getPassword())) {
             throw new Exception("用户名或密码不正确!!");
@@ -99,8 +98,7 @@ public class AdminService {
 
         admin.setLastLoginTime(System.currentTimeMillis() / 1000);
         admin.setLastLoginIp(ip);
-        adminMapper.update(admin);
-
+        adminMapper.updateUsernameAndPassword(admin);
         return admin;
     }
 }
