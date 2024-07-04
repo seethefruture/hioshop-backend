@@ -17,8 +17,7 @@ public class FootprintController {
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteFootprint(@RequestBody Map<String, String> payload) {
         String footprintId = payload.get("footprintId");
-        String userId = getUserIdFromSession(); // Implement your session handling logic here
-        footprintService.deleteFootprint(userId, footprintId);
+        footprintService.deleteFootprint(footprintId);
         return ResponseEntity.ok("删除成功");
     }
 

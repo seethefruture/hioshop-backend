@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.example.demo.mapper.GoodsMapper">
-    <select id="selectByParams" resultType="com.example.vo.Goods">
+<mapper namespace="com.example.mapper.GoodsMapper">
+    <insert id="insert">
+        insert into goods (id, category_id, is_on_sale, name, goods_number, sell_volume, keywords, retail_price,
+                           min_retail_price, cost_price, min_cost_price, goods_brief, goods_desc, sort_order, is_index,
+                           is_new, goods_unit, https_pic_url, list_pic_url, freight_template_id, freight_type,
+                           is_delete, has_gallery, has_done)
+        values (#{id}, #{categoryId}, #{isOnSale}, #{name}, #{goodsNumber}, #{sellVolume}, #{keywords}, #{retailPrice},
+                #{minRetailPrice}, #{costPrice}, #{minCostPrice}, #{goodsBrief}, #{goodsDesc}, #{sortOrder}, #{isIndex},
+                #{isNew}, #{goodsUnit}, #{httpsPicUrl}, #{listPicUrl}, #{freightTemplateId}, #{freightType},
+                0, #{hasGallery}, #{hasDone});
+    </insert>
+
+    <select id="selectByParams" resultType="com.example.po.Goods">
 
         SELECT * FROM goods WHERE is_on_sale = #{isOnSale} AND is_delete = #{isDelete}
         <if test="keyword!=null">

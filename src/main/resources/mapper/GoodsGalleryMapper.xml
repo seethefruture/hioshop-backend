@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mapper.GoodsGalleryMapper">
+    <insert id="insert">
+        insert into goods_gallery (id, goods_id, img_url, img_desc, sort_order, is_delete)
+        values (#{id}, #{goodsId}, #{imgUrl}, #{imgDesc}, #{sortOrder}, 0);
+    </insert>
+</mapper>

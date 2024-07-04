@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mapper.CategoryMapper">
+    <insert id="insertCategory">
+        insert into category (id, name, keywords, front_desc, parent_id, sort_order, show_index, is_show, icon_url,
+                              img_url, level, front_name, p_height, is_category, is_channel)
+        values (#{id}, #{name}, #{keywords}, #{frontDesc}, #{parentId}, #{sortOrder}, #{showIndex}, #{isShow},
+                #{iconUrl}, #{imgUrl}, #{level}, #{frontName}, #{pHeight}, #{isCategory}, #{isChannel});
+    </insert>
+
+    <update id="updateSortOrder">
+        UPDATE category
+        SET sort_order = #{sort}
+        WHERE id = #{id}
+    </update>
+    
+    <update id="updateCategory">
+        update category
+        set is_category = #{isCategory},
+            name=#{name},
+            keywords=#{keywords},
+            front_desc=#{frontDesc},
+            parent_id=#{parentId},
+            sort_order=#{sortOrder},
+            show_index=#{showIndex},
+            is_show=#{iconUrl},
+            img_url=#{imgUrl},
+            level=#{level},
+            front_name=#{frontName},
+            p_height=#{pHeight},
+            is_category=#{isCategory},
+            is_channel=#{isChannel}
+        where id = #{id};
+    </update>
+
+    <select id="selectRootCategories" resultType="com.example.po.Category">
+        SELECT *
+        FROM category
+        where parent_id = 0
+          and is_category = 1
+        limit 10
+    </select>
+
+    <select id="selectCategoryById" resultType="com.example.po.Category">
+        SELECT *
+        FROM category
+        where id = #{id}
+    </select>
+
+    <select id="findChannelCategories" resultType="com.example.po.Category">
+        SELECT id, icon_url, name, sort_order
+        FROM category
+        WHERE is_channel = 1
+          AND parent_id = 0
+        ORDER BY sort_order
+    </select>
+
+    <select id="findShowCategories" resultType="com.example.po.Category">
+        SELECT id, name, img_url, p_height
+        FROM category
+        WHERE parent_id = 0
+          AND is_show = 1
+        ORDER BY sort_order
+    </select>
+    <select id="selectTopCategory" resultType="com.example.po.Category">
+        SELECT *
+        FROM category
+        WHERE parent_id = 0
+    </select>
+    <select id="findCategoryNameById" resultType="java.lang.String">
+        select name
+        from category
+        where id = #{id}
+    </select>
+</mapper>

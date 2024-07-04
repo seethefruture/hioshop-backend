@@ -1,5 +1,6 @@
 package com.example.api;
 
+import com.alibaba.fastjson.JSONObject;
 import com.example.vo.Goods;
 import com.example.vo.Product;
 import com.example.service.GoodsService;
@@ -70,7 +71,7 @@ public class GoodsController {
     }
 
     @GetMapping("/express-data")
-    public List<String> getExpressData() {
+    public JSONObject getExpressData() {
         return goodsService.getExpressData();
     }
 
@@ -142,11 +143,6 @@ public class GoodsController {
         return productService.getProductInfo(id);
     }
 
-    @GetMapping("/categories1")
-    public Map<String, Object> getAllCategory1() {
-        return productService.getAllCategory1();
-    }
-
     @GetMapping("/categories")
     public Map<String, Object> getAllCategories() {
         return productService.getAllCategories();
@@ -154,7 +150,7 @@ public class GoodsController {
 
     @PostMapping("/store")
     public String storeProduct(@RequestBody Map<String, Object> values) {
-        return productService.storeProduct(values);
+        return goodsService.store(values);
     }
 
     @PostMapping("/updatePrice")
@@ -170,11 +166,6 @@ public class GoodsController {
     @PostMapping("/updateSort")
     public void updateSort(@RequestParam("id") String id, @RequestParam("sort") Integer sort) {
         productService.updateSort(id, sort);
-    }
-
-    @PostMapping("/updateShortName")
-    public void updateShortName(@RequestParam("id") String id, @RequestParam("short_name") String shortName) {
-        productService.updateShortName(id, shortName);
     }
 
     @GetMapping("/galleryList")
@@ -193,8 +184,8 @@ public class GoodsController {
     }
 
     @PostMapping("/deleteGalleryFile")
-    public void deleteGalleryFile(@RequestParam("url") String url, @RequestParam("id") String id) {
-        productService.deleteGalleryFile(url, id);
+    public void deleteGalleryFile( @RequestParam("id") String id) {
+        productService.deleteGalleryFile( id);
     }
 
     @PostMapping("/galleryEdit")

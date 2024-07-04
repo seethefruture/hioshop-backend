@@ -22,8 +22,8 @@ public class FootprintService {
     @Autowired
     private GoodsMapper goodsMapper;
 
-    public void deleteFootprint(String userId, String footprintId) {
-        footprintMapper.deleteFootprintByUserAndId(userId, footprintId);
+    public void deleteFootprint(String footprintId) {
+        footprintMapper.deleteFootprintByUserAndId(footprintId);
     }
 
     public List<Footprint> listFootprints(String userId, int page, int size) {
