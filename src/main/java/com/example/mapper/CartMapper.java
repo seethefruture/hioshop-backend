@@ -1,6 +1,6 @@
 package com.example.mapper;
 
-import com.example.po.Cart;
+import com.example.po.CartPO;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,14 +9,14 @@ import java.util.List;
 @Mapper
 public interface CartMapper {
 
-    List<Cart> getCharts(@Param("userId") String userId, @Param("isFast") Boolean isFast, @Param("productId") String productId);
+    List<CartPO> getCharts(@Param("userId") String userId, @Param("isFast") Boolean isFast, @Param("productId") String productId);
 
 //    @Update("UPDATE cart SET checked = 0 WHERE product_id = #{productId} AND user_id = #{userId} AND is_delete = 0")
 //    void uncheckItem(@Param("productId") String productId, @Param("userId") String userId);
 
-    void updateCart(@Param("cartList") List<Cart> cart);
+    void updateCart(@Param("cartList") List<CartPO> cartPO);
 
-    void insert(Cart cart);
+    void insert(CartPO cartPO);
 
     void updateAddAgain(@Param("retailPrice") String retailPrice, @Param("checked") Boolean checked, @Param("number") Integer number, @Param("id") String id);
 

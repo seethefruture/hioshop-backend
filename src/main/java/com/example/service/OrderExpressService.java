@@ -1,7 +1,7 @@
 package com.example.service;
 
 import com.example.mapper.OrderExpressMapper;
-import com.example.vo.OrderExpress;
+import com.example.po.OrderExpressPO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,16 +11,16 @@ public class OrderExpressService {
     @Autowired
     private OrderExpressMapper orderExpressMapper;
 
-    public OrderExpress getLatestOrderExpress(String orderId) {
-        OrderExpress returnExpressInfo = new OrderExpress();
+    public OrderExpressPO getLatestOrderExpress(String orderId) {
+        OrderExpressPO returnExpressInfo = new OrderExpressPO();
         returnExpressInfo.setShipperCode("");
         returnExpressInfo.setShipperName("");
         returnExpressInfo.setLogisticCode("");
-        returnExpressInfo.setIsFinish(0);
+        returnExpressInfo.setFinish(false);
         returnExpressInfo.setRequestTime(0);
         returnExpressInfo.setTraces("");
 
-        OrderExpress orderExpress = orderExpressMapper.findByOrderId(orderId);
+        OrderExpressPO orderExpress = orderExpressMapper.findByOrderId(orderId);
         if (orderExpress == null || orderExpress.getShipperCode() == null || orderExpress.getLogisticCode() == null) {
             return returnExpressInfo;
         }
@@ -28,11 +28,11 @@ public class OrderExpressService {
         returnExpressInfo.setShipperCode(orderExpress.getShipperCode());
         returnExpressInfo.setShipperName(orderExpress.getShipperName());
         returnExpressInfo.setLogisticCode(orderExpress.getLogisticCode());
-        returnExpressInfo.setIsFinish(orderExpress.getIsFinish());
+        returnExpressInfo.setFinish(orderExpress.isFinish());
         returnExpressInfo.setRequestTime(orderExpress.getRequestTime() * 1000);
         returnExpressInfo.setTraces(orderExpress.getTraces() == null ? "" : orderExpress.getTraces());
 
-        if (orderExpress.getIsFinish() == 1) {
+        if (orderExpress.isFinish()) {
             return returnExpressInfo;
         }
 
@@ -41,10 +41,6 @@ public class OrderExpressService {
 //        Object latestExpressInfo = queryExpress(orderExpress.getShipperCode(), orderExpress.getLogisticCode());
 
         long nowTime = System.currentTimeMillis() / 1000;
-        OrderExpress updateData = new OrderExpress();
-        updateData.setRequestTime(nowTime);
-        updateData.setUpdateTime(nowTime);
-        updateData.setRequestCount(1);
 
 //        if (latestExpressInfo.isSuccess()) {
 //            returnExpressInfo.setTraces(JSON.toJSONString(latestExpressInfo.getTraces()));
@@ -55,7 +51,7 @@ public class OrderExpressService {
 //            updateData.setIsFinish(latestExpressInfo.getIsFinish());
 //        }
 
-        orderExpressMapper.update(updateData);
+        orderExpressMapper.update(nowTime, nowTime, 1, orderId);
         return returnExpressInfo;
     }
 }

@@ -1,11 +1,11 @@
 package com.example.mapper;
 
-import com.example.vo.Specification;
+import com.example.po.SpecificationPO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface SpecificationMapper {
 
-    Specification findById(@Param("id") String id);
+    SpecificationPO findById(@Param("id") String id);
 }

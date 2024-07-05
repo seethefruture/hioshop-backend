@@ -2,7 +2,7 @@ package com.example.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.example.mapper.UserMapper;
-import com.example.vo.User;
+import com.example.po.UserPO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ public class UserService {
     }
 
     public int updateUser(String userId, String name, String mobile, String nickname, String avatar, int nameMobile) {
-        User user = new User();
+        UserPO user = new UserPO();
         user.setId(userId);
         user.setName(name);
         user.setMobile(mobile);
@@ -32,7 +32,7 @@ public class UserService {
     }
 
     public Map<String, Object> getUserDetail(String userId) {
-        User user = userMapper.findById(userId);
+        UserPO user = userMapper.findById(userId);
         if (user == null) {
             return null;
         }
@@ -45,11 +45,11 @@ public class UserService {
         return userDetails;
     }
 
-    public User getUserById(String userId) {
+    public UserPO getUserById(String userId) {
         return userMapper.findById(userId);
     }
 
-    public void saveUser(User user) {
+    public void saveUser(UserPO user) {
         if (StrUtil.isNotEmpty(user.getId())) {
             userMapper.update(user);
         } else {

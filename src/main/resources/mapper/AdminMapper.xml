@@ -24,18 +24,18 @@
         where id = #{id}
     </update>
 
-    <select id="selectAll" resultType="com.example.po.Admin">
+    <select id="selectAll" resultType="com.example.po.AdminPO">
         select *
         from admin
         where is_delete = 0
     </select>
 
-    <select id="selectById" resultType="com.example.po.Admin">
+    <select id="selectById" resultType="com.example.po.AdminPO">
         select *
         from admin
         where id = #{id}
     </select>
-    <select id="selectByUsername" resultType="com.example.po.Admin">
+    <select id="selectByUsername" resultType="com.example.po.AdminPO">
         select *
         from admin
         where username = #{username}

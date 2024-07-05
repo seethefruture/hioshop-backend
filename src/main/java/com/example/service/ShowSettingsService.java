@@ -1,6 +1,7 @@
 package com.example.service;
 
 import com.example.mapper.ShowSettingsMapper;
+import com.example.po.ShowSettingsPO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ public class ShowSettingsService {
     @Autowired
     private ShowSettingsMapper showSettingsMapper;
 
-    public Map<String, Object> getShowSettings() {
+    public ShowSettingsPO getShowSettings() {
         return showSettingsMapper.findById(1L);
     }
 }

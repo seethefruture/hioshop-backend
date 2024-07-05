@@ -1,6 +1,6 @@
 package com.example.mapper;
 
-import com.example.vo.OrderGoods;
+import com.example.po.OrderGoodsPO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -15,5 +15,5 @@ public interface OrderGoodsMapper {
             "        WHERE user_id = #{userId}\n" +
             "        AND order_id = #{orderId}\n" +
             "        AND is_delete = #{isDelete}")
-    List<OrderGoods> findOrderGoods(@Param("userId") String userId, @Param("orderId") String orderId, @Param("isDelete") Boolean isDelete);
+    List<OrderGoodsPO> findOrderGoods(@Param("userId") String userId, @Param("orderId") String orderId, @Param("isDelete") Boolean isDelete);
 }

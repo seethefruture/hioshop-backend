@@ -1,5 +1,6 @@
 package com.example.api;
 
+import com.example.po.ShowSettingsPO;
 import com.example.service.ShowSettingsService;
 import com.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class ShowSettingsController {
 
     @GetMapping("/showSettings")
     public ResponseEntity<?> showSettings() {
-        Map<String, Object> info = showSettingsService.getShowSettings();
+        ShowSettingsPO info = showSettingsService.getShowSettings();
         return ResponseEntity.ok(info);
     }
 

@@ -1,10 +1,10 @@
 package com.example.service;
 
 import com.example.mapper.*;
-import com.example.vo.Ad;
-import com.example.vo.Category;
-import com.example.vo.Goods;
-import com.example.vo.Notice;
+import com.example.po.AdPO;
+import com.example.po.CategoryPO;
+import com.example.po.GoodsPO;
+import com.example.po.NoticePO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,14 +34,14 @@ public class AppService {
     public Map<String, Object> getAppInfo() {
         String userId = getLoginUserId();
 
-        List<Ad> banner = adMapper.findExpiredAds();
-        List<Notice> notice = noticeMapper.findActiveNotices();
-        List<Category> channel = categoryMapper.findChannelCategories();
-        List<Category> categoryList = categoryMapper.findShowCategories(); // img_url as banner, p_height as height
+        List<AdPO> banner = adMapper.findExpiredAds();
+        List<NoticePO> notice = noticeMapper.findActiveNotices();
+        List<CategoryPO> channel = categoryMapper.findChannelCategories();
+        List<CategoryPO> categoryList = categoryMapper.findShowCategories(); // img_url as banner, p_height as height
 
-        List<Goods> allCategoryGoods = goodsMapper.findCategoryGoods(categoryList.stream().map(Category::getId).collect(Collectors.toList()));
-        Map<String, List<Goods>> allCategoryGoodsGroupByCategory = allCategoryGoods.stream().collect(Collectors.groupingBy(Goods::getCategoryId));
-        for (Category categoryItem : categoryList) {
+        List<GoodsPO> allCategoryGoods = goodsMapper.findCategoryGoods(categoryList.stream().map(CategoryPO::getId).collect(Collectors.toList()));
+        Map<String, List<GoodsPO>> allCategoryGoodsGroupByCategory = allCategoryGoods.stream().collect(Collectors.groupingBy(GoodsPO::getCategoryId));
+        for (CategoryPO categoryItem : categoryList) {
             categoryItem.setGoodsList(allCategoryGoodsGroupByCategory.get(categoryItem.getId()));
         }
         Integer cartCount = cartMapper.getCartCountByUserId(userId);

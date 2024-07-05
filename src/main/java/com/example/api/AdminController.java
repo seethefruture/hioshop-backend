@@ -1,7 +1,8 @@
 package com.example.api;
 
-import com.example.vo.Admin;
-import com.example.vo.User;
+import com.example.po.ShowSettingsPO;
+import com.example.po.AdminPO;
+import com.example.po.UserPO;
 import com.example.service.AdminService;
 import com.example.service.JwtService;
 import com.example.service.UserService;
@@ -23,56 +24,56 @@ public class AdminController {
 
     @Autowired
     private UserService userService;
-@Autowired
+    @Autowired
     private JwtService jwtService;
 
     @GetMapping("/admins")
     public ResponseEntity<?> index() {
-        List<Admin> admins = adminService.getAllAdmins();
+        List<AdminPO> admins = adminService.getAllAdmins();
         return ResponseEntity.ok(admins);
     }
 
     @PostMapping("/admin/detail")
     public ResponseEntity<?> adminDetail(@RequestBody Map<String, String> payload) {
-        Long id = Long.parseLong(payload.get("id"));
-        Admin admin = adminService.getAdminById(id);
+        String id = payload.get("id");
+        AdminPO admin = adminService.getAdminById(id);
         return ResponseEntity.ok(admin);
     }
 
     @PostMapping("/admin/add")
-    public ResponseEntity<?> adminAdd(@RequestBody Admin admin) {
+    public ResponseEntity<?> adminAdd(@RequestBody AdminPO admin) {
         adminService.addAdmin(admin);
-        return ResponseEntity.ok("Admin added successfully");
+        return ResponseEntity.ok("AdminPO added successfully");
     }
 
     @PostMapping("/admin/save")
     public ResponseEntity<?> adminSave(@RequestBody Map<String, Object> payload) {
         adminService.saveAdmin(payload);
-        return ResponseEntity.ok("Admin saved successfully");
+        return ResponseEntity.ok("AdminPO saved successfully");
     }
 
     @GetMapping("/user/info")
     public ResponseEntity<?> userInfo(@RequestParam String id) {
-        User user = userService.getUserById(id);
+        UserPO user = userService.getUserById(id);
         return ResponseEntity.ok(user);
     }
 
     @PostMapping("/user/store")
-    public ResponseEntity<?> storeUser(@RequestBody User user) {
+    public ResponseEntity<?> storeUser(@RequestBody UserPO user) {
         userService.saveUser(user);
-        return ResponseEntity.ok("User saved successfully");
+        return ResponseEntity.ok("UserPO saved successfully");
     }
 
     @PostMapping("/admin/delete")
     public ResponseEntity<?> deleteAdmin(@RequestBody Map<String, String> payload) {
-        Long id = Long.parseLong(payload.get("id"));
+        String id = payload.get("id");
         adminService.deleteAdmin(id);
-        return ResponseEntity.ok("Admin deleted successfully");
+        return ResponseEntity.ok("AdminPO deleted successfully");
     }
 
     @GetMapping("/showset")
     public ResponseEntity<?> showSet() {
-        Map<String, Object> settings = adminService.getShowSettings();
+        ShowSettingsPO settings = adminService.getShowSettings();
         return ResponseEntity.ok(settings);
     }
 
@@ -90,7 +91,7 @@ public class AdminController {
     }
 
     @PostMapping("/settings/shipper")
-    public ResponseEntity<?> storeShipperSettings(@RequestBody Map<String, Object> settings) {
+    public ResponseEntity<?> storeShipperSettings(@RequestBody ShowSettingsPO settings) {
         adminService.updateShipperSettings(settings);
         return ResponseEntity.ok("Shipper settings updated successfully");
     }
@@ -107,7 +108,7 @@ public class AdminController {
         String password = payload.get("password");
 
         try {
-            Admin admin = adminService.login(username, password, request.getRemoteAddr());
+            AdminPO admin = adminService.login(username, password, request.getRemoteAddr());
             Map<String, Object> sessionData = new HashMap<>();
             sessionData.put("user_id", admin.getId());
             String sessionKey = jwtService.create(sessionData);
@@ -115,7 +116,7 @@ public class AdminController {
             Map<String, Object> userInfo = new HashMap<>();
             userInfo.put("id", admin.getId());
             userInfo.put("username", admin.getUsername());
-            userInfo.put("name", admin.getName());
+//            userInfo.put("name", admin.getName());
 
             Map<String, Object> response = new HashMap<>();
             response.put("token", sessionKey);

@@ -2,7 +2,9 @@ package com.example.service;
 
 import com.example.mapper.AddressMapper;
 import com.example.mapper.RegionMapper;
-import com.example.vo.Address;
+import com.example.po.AddressPO;
+import com.example.utils.MySnowFlakeGenerator;
+import com.example.po.AddressPO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,23 +16,18 @@ public class AddressService {
     @Autowired
     private AddressMapper addressMapper;
 
-    @Autowired
-    private RegionMapper regionMapper;
-
-    public List<Address> getAddresses(String userId) {
+    public List<AddressPO> getAddresses(String userId) {
         return addressMapper.findAddressFullNameByUserId(userId);
     }
 
-    public Address saveAddress(String userId, Address address) {
+    public AddressPO saveAddress(String userId, AddressPO address) {
         address.setUserId(userId);
         if (address.getId() == null) {
+            address.setId(MySnowFlakeGenerator.next());
             addressMapper.insert(address);
         } else {
             addressMapper.update(address);
         }
-//        if (address.getIsDefault() == 1) {
-//            addressMapper.setDefaultAddresses(userId, address.getId());
-//        }
         return address;
     }
 
@@ -39,7 +36,7 @@ public class AddressService {
         return affectedRows > 0;
     }
 
-    public Address getAddressDetail(String userId, String id) {
+    public AddressPO getAddressDetail(String userId, String id) {
         return addressMapper.findAddressFullNameById(userId);
     }
 }

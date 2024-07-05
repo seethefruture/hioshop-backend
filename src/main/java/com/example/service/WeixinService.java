@@ -3,9 +3,10 @@ package com.example.service;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.example.mapper.*;
-import com.example.vo.Order;
-import com.example.vo.OrderGoods;
-import com.example.vo.User;
+import com.example.po.OrderGoodsPO;
+import com.example.po.OrderPO;
+import com.example.po.ProductPO;
+import com.example.po.UserPO;
 import com.example.utils.MySnowFlakeGenerator;
 import com.example.utils.SignatureUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -17,7 +18,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import com.example.vo.Product;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -65,10 +65,10 @@ public class WeixinService {
         int isNew = 0;
         Long now = System.currentTimeMillis();
         String clientIp = ""; // 暂时不记录 ip
-        User user;
+        UserPO user;
         if (userId == null) {
             // 注册新用户
-            user = new User();
+            user = new UserPO();
             user.setUsername("微信用户" + UUID.randomUUID().toString().substring(0, 6));
             user.setPassword(openid);
             user.setRegisterTime(now);
@@ -106,7 +106,7 @@ public class WeixinService {
     }
 
     public void preWeixinPaya(String orderId) {
-        Order orderInfo = orderMapper.findById(orderId);
+        OrderPO orderInfo = orderMapper.findById(orderId);
         if (orderInfo != null) {
             long currentTime = System.currentTimeMillis() / 1000;
             Map<String, Object> result = new HashMap<>();
@@ -119,20 +119,20 @@ public class WeixinService {
     }
 
     public Map<String, Object> preWeixinPay(String orderId) throws Exception {
-        Order orderInfo = orderMapper.findById(orderId);
+        OrderPO orderInfo = orderMapper.findById(orderId);
         if (orderInfo == null || orderInfo.getPayStatus() != 0) {
             throw new Exception("订单已取消或已支付");
         }
 
-        List<OrderGoods> orderGoodsList = orderMapper.findOrderGoodsByOrderId(orderId);
-        for (OrderGoods item : orderGoodsList) {
-            Product product = productMapper.findById(item.getProductId());
+        List<OrderGoodsPO> orderGoodsList = orderMapper.findOrderGoodsByOrderId(orderId);
+        for (OrderGoodsPO item : orderGoodsList) {
+            ProductPO product = productMapper.findById(item.getProductId());
             if (item.getNumber() > product.getGoodsNumber() || !item.getRetailPrice().equals(product.getRetailPrice())) {
                 throw new Exception("库存不足或价格发生变化");
             }
         }
 
-        User user = userMapper.findById(orderInfo.getUserId());
+        UserPO user = userMapper.findById(orderInfo.getUserId());
         if (user == null || user.getWeixinOpenid() == null) {
             throw new Exception("微信支付失败，没有openid");
         }
@@ -148,10 +148,10 @@ public class WeixinService {
         return "SUCCESS";
     }
 
-    private void afterPay(Order orderInfo) {
+    private void afterPay(OrderPO orderInfo) {
         if (orderInfo.getOrderType() == 0) {
-            List<OrderGoods> orderGoodsList = orderMapper.findOrderGoodsByOrderId(orderInfo.getId());
-            for (OrderGoods cartItem : orderGoodsList) {
+            List<OrderGoodsPO> orderGoodsList = orderMapper.findOrderGoodsByOrderId(orderInfo.getId());
+            for (OrderGoodsPO cartItem : orderGoodsList) {
                 productMapper.decrementGoodsNumber(cartItem.getGoodsId(), cartItem.getNumber());
                 productMapper.incrementSellVolume(cartItem.getGoodsId(), cartItem.getNumber());
             }
@@ -159,7 +159,7 @@ public class WeixinService {
     }
 
     public void receiveAction(Map<String, Object> payload) {
-        User user = new User();
+        UserPO user = new UserPO();
         user.setName("9");
         user.setRuleContent("哈哈");
         userMapper.insert(user);
@@ -253,7 +253,7 @@ public class WeixinService {
         }
 
         int addCart = cartMapper.countNewCarts(beginTimeStamp, endTimeStamp);
-        List<User> newData = userMapper.findNewUsers(beginTimeStamp, endTimeStamp);
+        List<UserPO> newData = userMapper.findNewUsers(beginTimeStamp, endTimeStamp);
         int newUser = newData.size();
         int oldUser = userMapper.countOldUsers(beginTimeStamp, endTimeStamp);
         int addOrderNum = orderMapper.countNewOrders(beginTimeStamp, endTimeStamp);

@@ -1,8 +1,7 @@
 package com.example.api;
 
-import com.example.vo.Order;
-import com.example.vo.Region;
-import com.example.vo.UpdateOrderDto;
+import com.example.po.OrderPO;
+import com.example.po.RegionPO;
 import com.example.service.OrderService;
 import com.example.utils.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,8 +74,8 @@ public class OrderController {
     }
 
     @PostMapping("/update")
-    public Map<String, Object> updateOrder(@RequestBody UpdateOrderDto updateOrderDto) {
-        return orderService.updateOrder(updateOrderDto.getAddressId(), updateOrderDto.getOrderId());
+    public Map<String, Object> updateOrder(@RequestBody Map<String, Object> updateOrderDto) {
+        return orderService.updateOrder(updateOrderDto.get("addressId").toString(), updateOrderDto.get("orderId").toString());
     }
 
     @GetMapping("/express")
@@ -176,7 +175,7 @@ public class OrderController {
     }
 
     @GetMapping("/getAllRegion")
-    public List<Region> getAllRegion() {
+    public List<RegionPO> getAllRegion() {
         return orderService.getAllRegion();
     }
 
@@ -258,7 +257,7 @@ public class OrderController {
     }
 
     @PostMapping("/store")
-    public Map<String, Object> store(@RequestBody Order order) {
+    public Map<String, Object> store(@RequestBody OrderPO order) {
         return orderService.store(order);
     }
 

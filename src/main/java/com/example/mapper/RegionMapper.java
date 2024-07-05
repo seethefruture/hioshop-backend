@@ -1,6 +1,6 @@
 package com.example.mapper;
 
-import com.example.vo.Region;
+import com.example.po.RegionPO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -12,10 +12,10 @@ import java.util.Map;
 public interface RegionMapper {
 
     @Select("SELECT * FROM region WHERE id = #{regionId}")
-    Region getRegionInfo(@Param("regionId") Long regionId);
+    RegionPO getRegionInfo(@Param("regionId") Long regionId);
 
     @Select("SELECT * FROM region WHERE parent_id = #{parentId}")
-    List<Region> getRegionList(@Param("parentId") Long parentId);
+    List<RegionPO> getRegionList(@Param("parentId") Long parentId);
 
     @Select("SELECT id,name FROM region WHERE id in #{regionId}")
     Map<String, String> getManyRegionNameById(@Param("regionId") List<String> regionId);

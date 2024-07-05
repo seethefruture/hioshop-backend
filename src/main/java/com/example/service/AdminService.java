@@ -1,7 +1,10 @@
 package com.example.service;
 
 import com.example.mapper.AdminMapper;
-import com.example.vo.Admin;
+import com.example.mapper.ShipperMapper;
+import com.example.mapper.ShowSettingsMapper;
+import com.example.po.AdminPO;
+import com.example.po.ShowSettingsPO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -9,31 +12,28 @@ import org.springframework.util.DigestUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminService {
 
     @Autowired
     private AdminMapper adminMapper;
+    @Autowired
+    private ShowSettingsMapper selectShowSettings;
+    @Autowired
+    private ShipperMapper shipperMapper;
 
-    public List<Admin> getAllAdmins() {
-        List<Admin> admins = adminMapper.selectAll();
-        admins.forEach(admin -> {
-            if (admin.getLastLoginTime() != 0) {
-                admin.setLastLoginTimeFormatted(String.valueOf(admin.getLastLoginTime()));
-            } else {
-                admin.setLastLoginTimeFormatted("还没登录过");
-            }
-            admin.setPassword("");
-        });
+    public List<AdminPO> getAllAdmins() {
+        List<AdminPO> admins = adminMapper.selectAll();
         return admins;
     }
 
-    public Admin getAdminById(Long id) {
+    public AdminPO getAdminById(String id) {
         return adminMapper.selectById(id);
     }
 
-    public void addAdmin(Admin admin) {
+    public void addAdmin(AdminPO admin) {
         String passwordSalt = "HIOLABS";
         String password = DigestUtils.md5DigestAsHex((admin.getPassword() + passwordSalt).getBytes(StandardCharsets.UTF_8));
         admin.setPasswordSalt(passwordSalt);
@@ -42,7 +42,7 @@ public class AdminService {
     }
 
     public void saveAdmin(Map<String, Object> payload) {
-        Admin admin = new Admin();
+        AdminPO admin = new AdminPO();
         String id = String.valueOf(payload.get("id"));
         String username = (String) payload.get("username");
 
@@ -54,40 +54,40 @@ public class AdminService {
             }
         }
 
-        Admin existingAdmin = adminMapper.selectByUsername(admin.getUsername());
+        AdminPO existingAdmin = adminMapper.selectByUsername(admin.getUsername());
         if (existingAdmin != null) {
             throw new RuntimeException("重名了");
         }
-
         adminMapper.updateUsername(id, username);
     }
 
-    public void deleteAdmin(Long id) {
+    public void deleteAdmin(String id) {
         adminMapper.deleteById(id);
     }
 
-    public Map<String, Object> getShowSettings() {
-        return adminMapper.selectShowSettings();
+    public ShowSettingsPO getShowSettings() {
+        return selectShowSettings.selectShowSettings();
     }
 
     public void updateShowSettings(Map<String, Object> settings) {
-        adminMapper.updateShowSettings(settings);
+        selectShowSettings.updateShowSettings(settings);
     }
 
     public void changeAutoStatus(Boolean status) {
-        adminMapper.updateAutoStatus(status);
+        selectShowSettings.updateAutoStatus(status);
     }
 
-    public void updateShipperSettings(Map<String, Object> settings) {
-        adminMapper.updateShipperSettings(settings);
+    public void updateShipperSettings(ShowSettingsPO settings) {
+        adminMapper.update(settings);
     }
 
     public Map<String, Object> getSenderInfo() {
-        return adminMapper.selectSenderInfo();
+        throw new RuntimeException("TODO");
+//        return adminMapper.selectSenderInfo();
     }
 
-    public Admin login(String username, String password, String ip) throws Exception {
-        Admin admin = adminMapper.selectByUsername(username);
+    public AdminPO login(String username, String password, String ip) throws Exception {
+        AdminPO admin = adminMapper.selectByUsername(username);
         if (admin == null) {
             throw new Exception("用户名或密码不正确!");
         }
@@ -96,9 +96,9 @@ public class AdminService {
             throw new Exception("用户名或密码不正确!!");
         }
 
-        admin.setLastLoginTime(System.currentTimeMillis() / 1000);
+        admin.setLastLoginTime(System.currentTimeMillis());
         admin.setLastLoginIp(ip);
-        adminMapper.updateUsernameAndPassword(admin);
+        adminMapper.updateUsernameAndPassword(admin.getId(), admin.getUsername(), admin.getPassword());
         return admin;
     }
 }

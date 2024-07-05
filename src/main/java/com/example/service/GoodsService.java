@@ -4,19 +4,15 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.example.mapper.*;
-import com.example.po.Category;
-import com.example.po.FreightTemplate;
-import com.example.vo.Footprint;
-import com.example.vo.Goods;
-import com.example.vo.GoodsGallery;
-import com.example.vo.SearchHistory;
+import com.example.po.*;
+import com.example.po.GoodsPO;
 import com.example.utils.MySnowFlakeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.vo.Product;
-import com.example.vo.GoodsSpecification;
-import com.example.vo.Specification;
+import com.example.po.ProductPO;
+import com.example.po.SpecificationPO;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,7 +45,7 @@ public class GoodsService {
     @Autowired
     private CartMapper cartMapper;
 
-    public List<Goods> getAllGoods() {
+    public List<GoodsPO> getAllGoods() {
         return goodsMapper.selectAll();
     }
 
@@ -57,9 +53,9 @@ public class GoodsService {
      * 获取商品的product
      *
      * @param goodsId
-     * @return List<Product>
+     * @return List<ProductPO>
      */
-    public List<Product> getProductList(String goodsId) {
+    public List<ProductPO> getProductList(String goodsId) {
         return productMapper.selectProductList(goodsId);
     }
 
@@ -70,156 +66,121 @@ public class GoodsService {
      * @return Map<String, Object>
      */
     public Map<String, Object> getSpecificationList(String goodsId) {
-        List<GoodsSpecification> info = goodsSpecificationMapper.selectSpecificationList(goodsId);
-        for (GoodsSpecification item : info) {
-            Product product = productMapper.findProductByGoodsDetail(goodsId, item.getId(), 0);
+        List<GoodsSpecificationPO> info = goodsSpecificationMapper.selectSpecificationList(goodsId);
+        for (GoodsSpecificationPO item : info) {
+            ProductPO product = productMapper.findProductByGoodsDetail(goodsId, item.getId(), 0);
             item.setGoodsNumber(product.getGoodsNumber());
         }
         String specId = info.get(0).getSpecificationId();
-        Specification specification = specificationMapper.findById(specId);
+        SpecificationPO specification = specificationMapper.findById(specId);
         String name = specification.getName();
         return new JSONObject().fluentPut("specification_id", specId).fluentPut("name", name).fluentPut("valueList", info);
     }
 
-    public Long store(Map<String, Object> payload) {
-        Map<String, Object> values = (Map<String, Object>) payload.get("info");
-        List<Map<String, Object>> specData = (List<Map<String, Object>>) payload.get("specData");
-        Integer specValue = (Integer) payload.get("specValue");
+    public String store(Map<String, Object> payload) {
+        GoodsPO goods = (GoodsPO) payload.get("info");
+        List<ProductPO> specData = (List<ProductPO>) payload.get("specData");
+        String specValue = String.valueOf(payload.get("specValue"));
         String cateId = (String) payload.get("cateId");
 
-        String goodsId = String.valueOf(values.get("id"));
-        values.put("category_id", cateId);
-        values.put("is_index", values.get("is_index") != null && (Boolean) values.get("is_index") ? 1 : 0);
-        values.put("is_new", values.get("is_new") != null && (Boolean) values.get("is_new") ? 1 : 0);
-
-        String id = String.valueOf(values.get("id"));
-
-        if (StrUtil.isNotEmpty(id)) {
-            goodsMapper.updateStore(cateId, (Boolean) values.get("is_index"), (Boolean) values.get("is_new"), id);
-            cartMapper.updateCartGoodsById(id, values);
-            productMapper.markProductDeletedByGoodsId(id);
-            goodsSpecificationMapper.markGoodsSpecificationDeletedByGoodsId(id);
-
-            for (Map<String, Object> item : specData) {
-                Long itemId = ((Number) item.get("id")).longValue();
-                if (itemId > 0) {
-                    cartMapper.updateCartProduct(itemId, item);
-                    item.put("is_delete", 0);
-                    productMapper.updateProductById(itemId, item);
-
-                    Map<String, Object> specificationData = Map.of(
-                            "value", item.get("value"),
-                            "specification_id", specValue,
-                            "is_delete", 0
-                    );
-                    goodsSpecificationMapper.updateGoodsSpecification(item.get("goods_specification_ids"), specificationData);
+        String goodsId = goods.getId();
+        goods.setCategoryId(cateId);
+        if (StrUtil.isNotEmpty(goodsId)) {
+            goodsMapper.updateStore(cateId, goods.getIsIndex(), goods.getIsNew(), goodsId);
+            for (ProductPO product : specData) {
+                String productId = product.getId();
+                if (StrUtil.isNotEmpty(productId)) {
+                    product.setDelete(false);
+                    productMapper.deleteByGoodsId(goodsId);
+                    goodsSpecificationMapper.updateGoodsSpecification(product.getValue(), specValue, product.getGoodsSpecificationIds());
                 } else {
-                    Map<String, Object> specificationData = Map.of(
-                            "value", item.get("value"),
-                            "goods_id", id,
-                            "specification_id", specValue
-                    );
-                    Long specId = goodsSpecificationMapper.add(specificationData);
-                    item.put("goods_specification_ids", specId);
-                    item.put("goods_id", id);
-                    productMapper.add(item);
+                    String goodsSpecificationId = MySnowFlakeGenerator.next();
+                    GoodsSpecificationPO goodsSpecificationPO = new GoodsSpecificationPO(goodsSpecificationId, goodsId, specValue, product.getValue(), "", false);
+                    goodsSpecificationMapper.insert(goodsSpecificationPO);
+                    product.setGoodsSpecificationIds(goodsSpecificationId);
+                    product.setGoodsId(goodsId);
+                    productMapper.insert(product);
                 }
             }
 
-            List<Map<String, Object>> gallery = (List<Map<String, Object>>) values.get("gallery");
+            List<GoodsGalleryPO> gallery = goods.getGallery();
             for (int i = 0; i < gallery.size(); i++) {
-                Map<String, Object> item = gallery.get(i);
-                Long itemId = ((Number) item.get("id")).longValue();
-                if ((Integer) item.get("is_delete") == 1 && itemId > 0) {
-                    goodsGalleryMapper.markGoodsGalleryDeleted(itemId);
-                } else if ((Integer) item.get("is_delete") == 0 && itemId > 0) {
-                    goodsGalleryMapper.updateGoodsGallerySortOrder(itemId, i);
-                } else if ((Integer) item.get("is_delete") == 0 && itemId == 0) {
-                    goodsGalleryMapper.addGoodsGallery(id, item.get("url").toString(), i);
+                GoodsGalleryPO goodsGallery = gallery.get(i);
+                String goodsGalleryId = goodsGallery.getId();
+                if (StrUtil.isNotEmpty(goodsGalleryId)) {
+                    goodsGalleryMapper.update(goodsGallery);
+                } else {
+                    goodsGallery.setId(MySnowFlakeGenerator.next());
+                    goodsGalleryMapper.insert(goodsGallery);
                 }
+
             }
         } else {
-            goodsId = goodsMapper.add(values);
-            for (Map<String, Object> item : specData) {
-                Map<String, Object> specificationData = Map.of(
-                        "value", item.get("value"),
-                        "goods_id", goodsId,
-                        "specification_id", specValue
-                );
-                Long specId = goodsSpecificationMapper.add(specificationData);
-                item.put("goods_specification_ids", specId);
-                item.put("goods_id", goodsId);
-                item.put("is_on_sale", 1);
-                productMapper.add(item);
+            goodsMapper.insert(goods);
+            for (ProductPO product : specData) {
+                String goodsSpecificationId = MySnowFlakeGenerator.next();
+                GoodsSpecificationPO goodsSpecificationPO = new GoodsSpecificationPO(goodsSpecificationId, goodsId, specValue, product.getValue(), "", false);
+                goodsSpecificationMapper.insert(goodsSpecificationPO);
+                product.setGoodsSpecificationIds(goodsSpecificationId);
+                product.setGoodsId(goodsId);
+                product.setOnSale(false);
+                productMapper.insert(product);
             }
 
-            List<Map<String, Object>> gallery = (List<Map<String, Object>>) values.get("gallery");
-            for (int i = 0; i < gallery.size(); i++) {
-                Map<String, Object> item = gallery.get(i);
-                goodsGalleryMapper.addGoodsGallery(goodsId, item.get("url").toString(), i);
+            List<GoodsGalleryPO> gallery = goods.getGallery();
+            for (GoodsGalleryPO item : gallery) {
+                goodsGalleryMapper.insert(item);
             }
         }
 
-        List<Map<String, Object>> products = productMapper.findOnSaleProductsByGoodsId(goodsId);
-        if (products.size() > 1) {
-            Long goodsNum = productMapper.sumGoodsNumberByGoodsId(goodsId);
-            List<Long> retailPrices = productMapper.findRetailPricesByGoodsId(goodsId);
-            List<Long> costs = productMapper.findCostsByGoodsId(goodsId);
+        List<ProductPO> products = productMapper.findOnSaleProductsByGoodsId(goodsId);
+        if (CollUtil.isNotEmpty(products)) {
+            Integer goodsNum = productMapper.sumGoodsNumberByGoodsId(goodsId);
+            List<BigDecimal> retailPrices = productMapper.findProductsByGoodsId(goodsId).stream().map(ProductPO::getRetailPrice).collect(Collectors.toList());
+            List<BigDecimal> costs = productMapper.findProductsByGoodsId(goodsId).stream().map(ProductPO::getCost).collect(Collectors.toList());
 
-            Long maxPrice = retailPrices.stream().max(Long::compare).orElse(0L);
-            Long minPrice = retailPrices.stream().min(Long::compare).orElse(0L);
-            Long maxCost = costs.stream().max(Long::compare).orElse(0L);
-            Long minCost = costs.stream().min(Long::compare).orElse(0L);
+//            BigDecimal maxPrice = retailPrices.stream().max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+            BigDecimal minPrice = retailPrices.stream().min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+//            BigDecimal maxCost = costs.stream().max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+            BigDecimal minCost = costs.stream().min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
 
-            String goodsPrice = minPrice.equals(maxPrice) ? minPrice.toString() : minPrice + "~" + maxPrice;
-            String costPrice = minCost + "~" + maxCost;
-
-            goodsMapper.updateGoodsPrices(goodsId, goodsNum, goodsPrice, costPrice, minPrice, minCost);
+            goodsMapper.updateGoodsPrices(goodsId, goodsNum, minPrice, minCost, minPrice, minCost);
         } else {
-            Map<String, Object> product = products.get(0);
-            Map<String, Object> info = Map.of(
-                    "goods_number", product.get("goods_number"),
-                    "retail_price", product.get("retail_price"),
-                    "cost_price", product.get("cost"),
-                    "min_retail_price", product.get("retail_price"),
-                    "min_cost_price", product.get("cost")
-            );
-            goodsMapper.updateGoodsInfo(goodsId, info);
+            throw new RuntimeException("TODO");
         }
-
         return goodsId;
     }
 
     public Map<String, Object> getGoodsDetail(String goodsId, String userId) {
-        Goods info = goodsMapper.findById(goodsId);
-        if (info == null || info.getIsDelete() == 1) {
+        GoodsPO info = goodsMapper.findById(goodsId);
+        if (info == null || info.isDelete()) {
             return null;
         }
-        List<GoodsGallery> gallery = goodsGalleryMapper.selectByGoodsId(goodsId);
-        List<Product> productList = productMapper.selectProductList(goodsId);
-        int goodsNumber = productList.stream().mapToInt(Product::getGoodsNumber).sum();
-        List<GoodsSpecification> specificationList = goodsSpecificationMapper.selectSpecificationList(goodsId);
+        List<GoodsGalleryPO> gallery = goodsGalleryMapper.selectByGoodsId(goodsId);
+        List<ProductPO> productList = productMapper.selectProductList(goodsId);
+        int goodsNumber = productList.stream().mapToInt(ProductPO::getGoodsNumber).sum();
+        List<GoodsSpecificationPO> specificationList = goodsSpecificationMapper.selectSpecificationList(goodsId);
         info.setGoodsNumber(goodsNumber);
         Map<String, Object> result = new HashMap<>();
         result.put("info", info);
         result.put("gallery", gallery);
         result.put("specificationList", specificationList);
         result.put("productList", productList);
-        footprintMapper.insert(new Footprint(userId, goodsId));
+        footprintMapper.insert(new FootprintPO(userId, goodsId));
         return result;
     }
 
-    public Goods getGoodsShare(String goodsId) {
+    public GoodsPO getGoodsShare(String goodsId) {
         return goodsMapper.findById(goodsId);
     }
 
-    public List<Goods> getGoodsList(String userId, String keyword, String sort, String order, String sales) {
+    public List<GoodsPO> getGoodsList(String userId, String keyword, String sort, String order, String sales) {
         Map<String, Object> params = new HashMap<>();
         params.put("isOnSale", 1);
         params.put("isDelete", 0);
         if (keyword != null && !keyword.isEmpty()) {
             params.put("keyword", "%" + keyword + "%");
-            searchHistoryMapper.insert(new SearchHistory(userId, keyword, System.currentTimeMillis() / 1000));
+            searchHistoryMapper.insert(new SearchHistoryPO(userId, keyword, System.currentTimeMillis() / 1000));
         }
 
         if ("price".equals(sort)) {
@@ -241,24 +202,24 @@ public class GoodsService {
     }
 
     public JSONObject getExpressData() {
-        List<FreightTemplate> freightTemplates = freightTemplateMapper.findFreightTemplates();
-        Map<String, String> kdData = freightTemplates.stream().collect(Collectors.toMap(FreightTemplate::getId, FreightTemplate::getName));
+        List<FreightTemplatePO> freightTemplatePOS = freightTemplateMapper.findFreightTemplates();
+        Map<String, String> kdData = freightTemplatePOS.stream().collect(Collectors.toMap(FreightTemplatePO::getId, FreightTemplatePO::getName));
 
-        List<Category> categories = categoryMapper.selectTopCategory();
-        Map<String, String> cateData = categories.stream().collect(Collectors.toMap(Category::getId, Category::getName));
+        List<CategoryPO> categories = categoryMapper.selectTopCategory();
+        Map<String, String> cateData = categories.stream().collect(Collectors.toMap(CategoryPO::getId, CategoryPO::getName));
         return new JSONObject().fluentPut("kd", kdData).fluentPut("cate", cateData);
     }
 
     public String copyGoods(String goodsId) {
-        Goods data = goodsMapper.findById(goodsId);
+        GoodsPO data = goodsMapper.findById(goodsId);
         String insertId = MySnowFlakeGenerator.next();
         data.setId(insertId);
-        data.setIsOnSale(false);
+        data.setOnSale(false);
         goodsMapper.insert(data);
 
-        List<GoodsGallery> goodsGallery = goodsGalleryMapper.findByGoodsId(goodsId);
-        for (GoodsGallery item : goodsGallery) {
-            GoodsGallery gallery = new GoodsGallery();
+        List<GoodsGalleryPO> goodsGallery = goodsGalleryMapper.findByGoodsId(goodsId);
+        for (GoodsGalleryPO item : goodsGallery) {
+            GoodsGalleryPO gallery = new GoodsGalleryPO();
             gallery.setImgUrl(item.getImgUrl());
 //            gallery.setSortOrder(item.getSortOrder());
             gallery.setGoodsId(insertId);
@@ -272,8 +233,8 @@ public class GoodsService {
     }
 
     public void updateGoodsNumber() {
-        List<Goods> allGoods = goodsMapper.selectAll();
-        for (Goods item : allGoods) {
+        List<GoodsPO> allGoods = goodsMapper.selectAll();
+        for (GoodsPO item : allGoods) {
             int goodsSum = productMapper.sumGoodsNumberByGoodsId(item.getId());
             goodsMapper.updateGoodsNumber(item.getId(), goodsSum);
             // Simulate delay
@@ -285,13 +246,13 @@ public class GoodsService {
         }
     }
 
-    public List<Goods> getOnSaleGoods(int page, int size) {
-        List<Goods> goodsList = goodsMapper.findOnSaleGoods(page, size);
-        for (Goods item : goodsList) {
+    public List<GoodsPO> getOnSaleGoods(int page, int size) {
+        List<GoodsPO> goodsList = goodsMapper.findOnSaleGoods(page, size);
+        for (GoodsPO item : goodsList) {
             item.setCategoryName(categoryMapper.findCategoryNameById(item.getCategoryId()));
-            List<Product> products = productMapper.findProductsByGoodsId(item.getId());
-            for (Product product : products) {
-                GoodsSpecification spec = CollUtil.getFirst(goodsSpecificationMapper.selectSpecificationList(product.getGoodsSpecificationIds()));
+            List<ProductPO> products = productMapper.findProductsByGoodsId(item.getId());
+            for (ProductPO product : products) {
+                GoodsSpecificationPO spec = CollUtil.getFirst(goodsSpecificationMapper.selectSpecificationList(product.getGoodsSpecificationIds()));
                 product.setValue(spec.getValue());
             }
             item.setProducts(products);
@@ -299,13 +260,13 @@ public class GoodsService {
         return goodsList;
     }
 
-    public List<Goods> getOutOfStockGoods(int page, int size) {
-        List<Goods> goodsList = goodsMapper.findOutOfStockGoods(page, size);
-        for (Goods item : goodsList) {
+    public List<GoodsPO> getOutOfStockGoods(int page, int size) {
+        List<GoodsPO> goodsList = goodsMapper.findOutOfStockGoods(page, size);
+        for (GoodsPO item : goodsList) {
             item.setCategoryName(categoryMapper.findCategoryNameById(item.getCategoryId()));
-            List<Product> products = productMapper.findProductsByGoodsId(item.getId());
-            for (Product product : products) {
-                GoodsSpecification spec = CollUtil.getFirst(goodsSpecificationMapper.selectSpecificationList(product.getGoodsSpecificationIds()));
+            List<ProductPO> products = productMapper.findProductsByGoodsId(item.getId());
+            for (ProductPO product : products) {
+                GoodsSpecificationPO spec = CollUtil.getFirst(goodsSpecificationMapper.selectSpecificationList(product.getGoodsSpecificationIds()));
                 product.setValue(spec.getValue());
             }
             item.setProducts(products);
@@ -313,13 +274,13 @@ public class GoodsService {
         return goodsList;
     }
 
-    public List<Goods> getDroppedGoods(int page, int size) {
-        List<Goods> goodsList = goodsMapper.findDroppedGoods(page, size);
-        for (Goods item : goodsList) {
+    public List<GoodsPO> getDroppedGoods(int page, int size) {
+        List<GoodsPO> goodsList = goodsMapper.findDroppedGoods(page, size);
+        for (GoodsPO item : goodsList) {
             item.setCategoryName(categoryMapper.findCategoryNameById(item.getCategoryId()));
-            List<Product> products = productMapper.findProductsByGoodsId(item.getId());
-            for (Product product : products) {
-                GoodsSpecification spec = CollUtil.getFirst(goodsSpecificationMapper.selectSpecificationList(product.getGoodsSpecificationIds()));
+            List<ProductPO> products = productMapper.findProductsByGoodsId(item.getId());
+            for (ProductPO product : products) {
+                GoodsSpecificationPO spec = CollUtil.getFirst(goodsSpecificationMapper.selectSpecificationList(product.getGoodsSpecificationIds()));
                 product.setValue(spec.getValue());
             }
             item.setProducts(products);
@@ -327,8 +288,8 @@ public class GoodsService {
         return goodsList;
     }
 
-    public List<Goods> sortGoods(int page, int size, int index) {
-        List<Goods> goodsList;
+    public List<GoodsPO> sortGoods(int page, int size, int index) {
+        List<GoodsPO> goodsList;
         switch (index) {
             case 1:
                 goodsList = goodsMapper.findGoodsSortDESC("sell_volume", page, size);
@@ -343,11 +304,11 @@ public class GoodsService {
                 goodsList = goodsMapper.findGoodsSortDESC("id", page, size);
                 break;
         }
-        for (Goods item : goodsList) {
+        for (GoodsPO item : goodsList) {
             item.setCategoryName(categoryMapper.findCategoryNameById(item.getCategoryId()));
-            List<Product> products = productMapper.findProductsByGoodsId(item.getId());
-            for (Product product : products) {
-                GoodsSpecification spec = CollUtil.getFirst(goodsSpecificationMapper.selectSpecificationList(product.getGoodsSpecificationIds()));
+            List<ProductPO> products = productMapper.findProductsByGoodsId(item.getId());
+            for (ProductPO product : products) {
+                GoodsSpecificationPO spec = CollUtil.getFirst(goodsSpecificationMapper.selectSpecificationList(product.getGoodsSpecificationIds()));
                 product.setValue(spec.getValue());
             }
             item.setProducts(products);
@@ -355,7 +316,7 @@ public class GoodsService {
         return goodsList;
     }
 
-    public void updateSaleStatus(String id, boolean status) {
+    public void updateSaleStatus(String id, Boolean status) {
         goodsMapper.updateSaleStatus(id, status);
         productMapper.updateSaleStatusByGoodsId(id, status);
     }

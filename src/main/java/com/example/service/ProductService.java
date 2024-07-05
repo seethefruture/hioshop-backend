@@ -1,14 +1,13 @@
 package com.example.service;
 
-import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.example.mapper.*;
-import com.example.po.Category;
-import com.example.vo.Goods;
-import com.example.vo.GoodsSpecification;
-import com.example.vo.GoodsGallery;
+import com.example.po.CategoryPO;
+import com.example.po.GoodsGalleryPO;
+import com.example.po.GoodsPO;
+import com.example.po.GoodsSpecificationPO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,7 +40,7 @@ public class ProductService {
 
     public Map<String, Object> getProductInfo(String id) {
         Map<String, Object> infoData = new HashMap<>();
-        Goods goods = goodsMapper.findById(id);
+        GoodsPO goods = goodsMapper.findById(id);
         infoData.put("info", goods);
         infoData.put("category_id", goods.getCategoryId());
         return infoData;
@@ -49,8 +48,8 @@ public class ProductService {
 
     public Map<String, Object> getAllSpecifications() {
         List<Map<String, Object>> specOptionsData = new ArrayList<>();
-        List<GoodsSpecification> specInfo = goodsSpecificationMapper.findAll();
-        for (GoodsSpecification spitem : specInfo) {
+        List<GoodsSpecificationPO> specInfo = goodsSpecificationMapper.findAll();
+        for (GoodsSpecificationPO spitem : specInfo) {
             Map<String, Object> info = new HashMap<>();
             info.put("value", spitem.getId());
             info.put("label", spitem.getName());
@@ -61,12 +60,12 @@ public class ProductService {
 
     public Map<String, Object> getAllCategory1() {
         List<Map<String, Object>> newData = new ArrayList<>();
-        List<Goods> level1Categories = goodsMapper.findCategoriesByLevelAndParentId();
-        List<Goods> level2Categories = goodsMapper.findLevel2Categories();
+        List<GoodsPO> level1Categories = goodsMapper.findCategoriesByLevelAndParentId();
+        List<GoodsPO> level2Categories = goodsMapper.findLevel2Categories();
 
-        for (Goods item : level1Categories) {
+        for (GoodsPO item : level1Categories) {
             List<Map<String, Object>> children = new ArrayList<>();
-            for (Goods citem : level2Categories) {
+            for (GoodsPO citem : level2Categories) {
                 if (citem.getParentId().equals(item.getId())) {
                     Map<String, Object> child = new HashMap<>();
                     child.put("value", citem.getId());
@@ -85,14 +84,14 @@ public class ProductService {
 
     public Map<String, Object> getAllCategories() {
         List<Map<String, Object>> newData = new ArrayList<>();
-        List<Category> rootCategories = categoryMapper.findCategoriesByLevelAndParentId("L1", "0");
-        List<String> rootCategoriesId = rootCategories.stream().map(Category::getId).collect(Collectors.toList());
-        List<Category> level2CategoriesGroup = categoryMapper.findCategoriesByLevelAndParentIdList("L2", rootCategoriesId);
-        Map<String, List<Category>> level2CategoriesMap = level2CategoriesGroup.stream().collect(Collectors.groupingBy(Category::getParentId));
-        for (Category item : rootCategories) {
+        List<CategoryPO> rootCategories = categoryMapper.findCategoriesByLevelAndParentId("L1", "0");
+        List<String> rootCategoriesId = rootCategories.stream().map(CategoryPO::getId).collect(Collectors.toList());
+        List<CategoryPO> level2CategoriesGroup = categoryMapper.findCategoriesByLevelAndParentIdList("L2", rootCategoriesId);
+        Map<String, List<CategoryPO>> level2CategoriesMap = level2CategoriesGroup.stream().collect(Collectors.groupingBy(CategoryPO::getParentId));
+        for (CategoryPO item : rootCategories) {
             List<Map<String, Object>> children = new ArrayList<>();
-            List<Category> level2Categories = level2CategoriesMap.get(item.getId());
-            for (Category cItem : level2Categories) {
+            List<CategoryPO> level2Categories = level2CategoriesMap.get(item.getId());
+            for (CategoryPO cItem : level2Categories) {
                 Map<String, Object> child = new HashMap<>();
                 child.put("value", cItem.getId());
                 child.put("label", cItem.getName());
@@ -121,19 +120,19 @@ public class ProductService {
     }
 
     public Map<String, Object> getGalleryList(String id) {
-        List<GoodsGallery> data = goodsGalleryMapper.findById(id);
-        return Collections.singletonMap("galleryList", data);
+        GoodsGalleryPO data = goodsGalleryMapper.findById(id);
+        return new JSONObject().fluentPut("galleryList", data);
     }
 
     public void addGallery(String url, String goodsId) {
-        GoodsGallery gallery = new GoodsGallery();
+        GoodsGalleryPO gallery = new GoodsGalleryPO();
         gallery.setGoodsId(goodsId);
         gallery.setImgUrl(url);
         goodsGalleryMapper.insert(gallery);
     }
 
     public Map<String, Object> getGalleryListByGoodsId(String goodsId) {
-        List<GoodsGallery> data = goodsGalleryMapper.findByGoodsId(goodsId);
+        List<GoodsGalleryPO> data = goodsGalleryMapper.findByGoodsId(goodsId);
         return Collections.singletonMap("galleryData", data);
     }
 
@@ -151,8 +150,8 @@ public class ProductService {
 
     public void destroyProduct(String id) {
         goodsMapper.delete(id);
-        productMapper.markProductsAsDeleted(id);
-        goodsSpecificationMapper.markSpecificationsAsDeleted(id);
+        productMapper.deleteByGoodsId(id);
+        goodsSpecificationMapper.deleteByGoodsId(id);
     }
 
     public String uploadHttpsImage(String url) {

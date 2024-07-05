@@ -1,8 +1,8 @@
 package com.example.api;
 
 import com.alibaba.fastjson.JSONObject;
-import com.example.vo.Goods;
-import com.example.vo.Product;
+import com.example.po.GoodsPO;
+import com.example.po.ProductPO;
 import com.example.service.GoodsService;
 import com.example.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class GoodsController {
     private ProductService productService;
     @GetMapping("/index")
     public ResponseEntity<?> index() {
-        List<Goods> goodsList = goodsService.getAllGoods();
+        List<GoodsPO> goodsList = goodsService.getAllGoods();
         return ResponseEntity.ok(goodsList);
     }
 
@@ -38,13 +38,13 @@ public class GoodsController {
 
     @GetMapping("/share")
     public ResponseEntity<?> goodsShare(@RequestParam("id") String goodsId) {
-        Goods info = goodsService.getGoodsShare(goodsId);
+        GoodsPO info = goodsService.getGoodsShare(goodsId);
         return ResponseEntity.ok(info);
     }
 
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getProductList(@RequestParam String goodsId) {
-        List<Product> products = goodsService.getProductList(goodsId);
+    public ResponseEntity<List<ProductPO>> getProductList(@RequestParam String goodsId) {
+        List<ProductPO> products = goodsService.getProductList(goodsId);
         return ResponseEntity.ok(products);
     }
 
@@ -60,7 +60,7 @@ public class GoodsController {
                                   @RequestParam(value = "sort", required = false) String sort,
                                   @RequestParam(value = "order", required = false) String order,
                                   @RequestParam(value = "sales", required = false) String sales) {
-        List<Goods> goodsData = goodsService.getGoodsList(userId, keyword, sort, order, sales);
+        List<GoodsPO> goodsData = goodsService.getGoodsList(userId, keyword, sort, order, sales);
         return ResponseEntity.ok(goodsData);
     }
 
@@ -93,28 +93,28 @@ public class GoodsController {
     }
 
     @GetMapping("/on-sale")
-    public List<Goods> getOnSaleGoods(
+    public List<GoodsPO> getOnSaleGoods(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size") int size) {
         return goodsService.getOnSaleGoods(page, size);
     }
 
     @GetMapping("/out-of-stock")
-    public List<Goods> getOutOfStockGoods(
+    public List<GoodsPO> getOutOfStockGoods(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size") int size) {
         return goodsService.getOutOfStockGoods(page, size);
     }
 
     @GetMapping("/dropped")
-    public List<Goods> getDroppedGoods(
+    public List<GoodsPO> getDroppedGoods(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size") int size) {
         return goodsService.getDroppedGoods(page, size);
     }
 
     @GetMapping("/sort")
-    public List<Goods> sortGoods(
+    public List<GoodsPO> sortGoods(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size") int size,
             @RequestParam(value = "index") int index) {

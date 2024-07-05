@@ -12,7 +12,7 @@
                 0, #{hasGallery}, #{hasDone});
     </insert>
 
-    <select id="selectByParams" resultType="com.example.po.Goods">
+    <select id="selectByParams" resultType="com.example.po.GoodsPO">
 
         SELECT * FROM goods WHERE is_on_sale = #{isOnSale} AND is_delete = #{isDelete}
         <if test="keyword!=null">

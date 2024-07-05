@@ -1,9 +1,9 @@
 package com.example.api;
 
+import com.example.po.AdPO;
+import com.example.po.GoodsPO;
 import com.example.service.GoodsService;
-import com.example.vo.Ad;
 import com.example.service.AdService;
-import com.example.vo.Goods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,39 +29,39 @@ public class AdController {
 
     @PostMapping("/updateSort")
     public ResponseEntity<?> updateSort(@RequestBody Map<String, Object> payload) {
-        int id = (int) payload.get("id");
+        String id = (String) payload.get("id");
         int sort = (int) payload.get("sort");
         adService.updateSortOrder(id, sort);
         return ResponseEntity.ok("Sort order updated successfully");
     }
 
     @GetMapping("/info")
-    public ResponseEntity<?> info(@RequestParam int id) {
-        Ad ad = adService.getAdInfo(id);
+    public ResponseEntity<?> info(@RequestParam String id) {
+        AdPO ad = adService.getAdInfo(id);
         return ResponseEntity.ok(ad);
     }
 
     @PostMapping("/store")
-    public ResponseEntity<?> store(@RequestBody Map<String, Object> payload) {
-        adService.saveAd(payload);
+    public ResponseEntity<?> store(@RequestBody AdPO ad) {
+        adService.saveAd(ad);
         return ResponseEntity.ok("Ad saved successfully");
     }
 
     @GetMapping("/getallrelate")
     public ResponseEntity<?> getAllRelate() {
-        List<Goods> allGoods = goodsService.getAllGoods();
+        List<GoodsPO> allGoods = goodsService.getAllGoods();
         return ResponseEntity.ok(allGoods);
     }
 
     @PostMapping("/destroy")
     public ResponseEntity<?> destroy(@RequestBody Map<String, Object> payload) {
-        int id = (int) payload.get("id");
+        String id = (String) payload.get("id");
         adService.destroyAd(id);
         return ResponseEntity.ok("Ad destroyed successfully");
     }
 
     @GetMapping("/saleStatus")
-    public ResponseEntity<?> saleStatus(@RequestParam int id, @RequestParam String status) {
+    public ResponseEntity<?> saleStatus(@RequestParam String id, @RequestParam String status) {
         boolean enabled = Boolean.parseBoolean(status);
         adService.updateSaleStatus(id, enabled);
         return ResponseEntity.ok("Sale status updated successfully");

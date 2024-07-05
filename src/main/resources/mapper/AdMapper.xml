@@ -8,13 +8,13 @@
         WHERE id = #{id}
     </update>
 
-    <select id="findById" resultType="com.example.po.Ad">
+    <select id="findById" resultType="com.example.po.AdPO">
         SELECT *
         FROM ad
         WHERE id = #{id}
     </select>
 
-    <select id="findAdByGoodsId" resultType="com.example.po.Ad">
+    <select id="findAdByGoodsId" resultType="com.example.po.AdPO">
         SELECT *
         FROM ad
         WHERE goods_id = #{goodsId}
@@ -26,7 +26,7 @@
         values (#{id}, #{linkType}, #{link}, #{goodsId}, #{imageUrl}, #{endTime}, #{enabled}, #{sortOrder}, 0);
     </insert>
 
-    <select id="findExpiredAds" resultType="com.example.po.Ad">
+    <select id="findExpiredAds" resultType="com.example.po.AdPO">
         SELECT *
         FROM ad
         WHERE end_time &lt; UNIX_TIMESTAMP()
@@ -34,7 +34,7 @@
           and is_delete = 0
     </select>
 
-    <select id="findExpiredAdsPage" resultType="com.example.po.Ad">
+    <select id="findExpiredAdsPage" resultType="com.example.po.AdPO">
         SELECT *
         FROM ad
         WHERE end_time &lt; UNIX_TIMESTAMP()

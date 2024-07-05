@@ -1,26 +1,28 @@
 package com.example.mapper;
 
-import com.example.po.Admin;
+import com.example.po.AdminPO;
+import com.example.po.ShowSettingsPO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Map;
 
 @Mapper
 public interface AdminMapper {
 
-    List<Admin> selectAll();
+    List<AdminPO> selectAll();
 
-    Admin selectById(@Param("id") Long id);
+    AdminPO selectById(@Param("id") String id);
 
-    void insert(Admin admin);
+    void insert(AdminPO adminPO);
 
     void updateUsernameAndPassword(@Param("id") String id, @Param("username") String username, @Param("password") String password);
 
     void updateUsername(@Param("id") String id, @Param("username") String username);
 
-    Admin selectByUsername(@Param("username") String username);
+    AdminPO selectByUsername(@Param("username") String username);
 
-    void deleteById(@Param("id") Long id);
+    void deleteById(@Param("id") String id);
+
+    void update(ShowSettingsPO settings);
 }

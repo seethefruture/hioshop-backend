@@ -33,7 +33,7 @@
         where id = #{id};
     </update>
 
-    <select id="selectRootCategories" resultType="com.example.po.Category">
+    <select id="selectRootCategories" resultType="com.example.po.CategoryPO">
         SELECT *
         FROM category
         where parent_id = 0
@@ -41,13 +41,13 @@
         limit 10
     </select>
 
-    <select id="selectCategoryById" resultType="com.example.po.Category">
+    <select id="selectCategoryById" resultType="com.example.po.CategoryPO">
         SELECT *
         FROM category
         where id = #{id}
     </select>
 
-    <select id="findChannelCategories" resultType="com.example.po.Category">
+    <select id="findChannelCategories" resultType="com.example.po.CategoryPO">
         SELECT id, icon_url, name, sort_order
         FROM category
         WHERE is_channel = 1
@@ -55,14 +55,14 @@
         ORDER BY sort_order
     </select>
 
-    <select id="findShowCategories" resultType="com.example.po.Category">
+    <select id="findShowCategories" resultType="com.example.po.CategoryPO">
         SELECT id, name, img_url, p_height
         FROM category
         WHERE parent_id = 0
           AND is_show = 1
         ORDER BY sort_order
     </select>
-    <select id="selectTopCategory" resultType="com.example.po.Category">
+    <select id="selectTopCategory" resultType="com.example.po.CategoryPO">
         SELECT *
         FROM category
         WHERE parent_id = 0

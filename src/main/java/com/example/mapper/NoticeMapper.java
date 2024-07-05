@@ -1,6 +1,6 @@
 package com.example.mapper;
 
-import com.example.vo.Notice;
+import com.example.po.NoticePO;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -10,21 +10,21 @@ import java.util.Map;
 public interface NoticeMapper {
 
     @Select("SELECT * FROM notice WHERE is_delete = 0")
-    List<Notice> findActiveNotices();
+    List<NoticePO> findActiveNotices();
 
     @Select("SELECT * FROM notice")
-    List<Map<String, Object>> selectAll();
+    List<NoticePO> selectAll();
 
     @Update("UPDATE notice SET content = #{content} WHERE id = #{id}")
     void updateContent(@Param("id") Long id, @Param("content") String content);
 
     @Insert("INSERT INTO notice (content, end_time) VALUES (#{content}, #{endTime})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
-    void insert(Notice notice);
+    void insert(NoticePO notice);
 
     @Update("UPDATE notice SET content = #{content}, end_time = #{endTime}, is_delete = #{isDelete} WHERE id = #{id}")
-    void update(Notice notice);
+    void update(NoticePO notice);
 
-    @Delete("DELETE FROM notice WHERE id = #{id}")
+    @Delete("update notice set is_delete=1 WHERE id = #{id}")
     void delete(@Param("id") Long id);
 }

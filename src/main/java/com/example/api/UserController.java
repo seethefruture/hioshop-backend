@@ -1,7 +1,7 @@
 package com.example.api;
 
 import cn.hutool.core.util.StrUtil;
-import com.example.vo.User;
+import com.example.po.UserPO;
 import com.example.service.JwtService;
 import com.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class UserController {
         if (StrUtil.isEmpty(userId)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
-        User user = userService.getUserById(userId);
+        UserPO user = userService.getUserById(userId);
         if (user == null) {
             return ResponseEntity.notFound().build();
         }

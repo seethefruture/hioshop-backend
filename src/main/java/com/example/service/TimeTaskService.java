@@ -4,10 +4,10 @@ import com.example.mapper.AdMapper;
 import com.example.mapper.NoticeMapper;
 import com.example.mapper.OrderMapper;
 import com.example.mapper.SettingsMapper;
-import com.example.vo.Ad;
-import com.example.vo.Notice;
-import com.example.vo.Order;
-import com.example.vo.Settings;
+import com.example.po.OrderPO;
+import com.example.po.AdPO;
+import com.example.po.NoticePO;
+import com.example.po.SettingsPO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +39,8 @@ public class TimeTaskService {
         }
 
         // Update notice
-        List<Notice> notices = noticeMapper.findActiveNotices();
-        for (Notice notice : notices) {
+        List<NoticePO> notices = noticeMapper.findActiveNotices();
+        for (NoticePO notice : notices) {
             if (currentTime > notice.getEndTime()) {
                 notice.setIsDelete(true);
                 noticeMapper.update(notice);
@@ -49,23 +49,22 @@ public class TimeTaskService {
 
         // Update orders
         long expireTime = currentTime - 24 * 60 * 60;
-        List<Order> orders = orderMapper.findExpiredOrders(expireTime);
-        for (Order order : orders) {
+        List<OrderPO> orders = orderMapper.findExpiredOrders(expireTime);
+        for (OrderPO order : orders) {
             order.setOrderStatus(102);
             orderMapper.update(order);
         }
 
         // Update ads
-        List<Ad> ads = adMapper.findExpiredAds();
-        for (Ad ad : ads) {
-            ad.setEnabled(false);
-            adMapper.updateEnable(ad);
+        List<AdPO> ads = adMapper.findExpiredAds();
+        for (AdPO ad : ads) {
+            adMapper.updateEnable(ad.getId(), false);
         }
 
         // Confirm orders
         long noConfirmTime = currentTime - 5 * 24 * 60 * 60;
-        List<Order> noConfirmOrders = orderMapper.findNoConfirmOrders(noConfirmTime);
-        for (Order order : noConfirmOrders) {
+        List<OrderPO> noConfirmOrders = orderMapper.findNoConfirmOrders(noConfirmTime);
+        for (OrderPO order : noConfirmOrders) {
             order.setOrderStatus(401);
             order.setConfirmTime(currentTime);
             orderMapper.update(order);
@@ -74,10 +73,10 @@ public class TimeTaskService {
 
     public void resetSql() {
         long time = System.currentTimeMillis() / 1000 + 300;
-        Settings settings = settingsMapper.findById(1);
-        if (settings != null && settings.getReset() == 0) {
+        SettingsPO settings = settingsMapper.findById(1);
+        if (settings != null && settings.getReset()) {
             settings.setCountdown(time);
-            settings.setReset(1);
+            settings.setReset(true);
             settingsMapper.update(settings);
             System.out.println("重置了！");
         } else {

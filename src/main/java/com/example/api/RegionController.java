@@ -1,6 +1,6 @@
 package com.example.api;
 
-import com.example.vo.Region;
+import com.example.po.RegionPO;
 import com.example.service.RegionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,7 @@ public class RegionController {
      */
     @GetMapping("/info")
     public ResponseEntity<?> info(@RequestParam("regionId") Long regionId) {
-        Region region = regionService.getRegionInfo(regionId);
+        RegionPO region = regionService.getRegionInfo(regionId);
         return ResponseEntity.ok(region);
     }
 
@@ -36,14 +36,14 @@ public class RegionController {
      */
     @GetMapping("/list")
     public ResponseEntity<?> list(@RequestParam("parentId") Long parentId) {
-        List<Region> regionList = regionService.getRegionList(parentId);
+        List<RegionPO> regionList = regionService.getRegionList(parentId);
         return ResponseEntity.ok(regionList);
     }
 
     @PostMapping("/data")
     public ResponseEntity<?> data(@RequestBody Map<String, Long> payload) {
         Long parentId = payload.get("parent_id");
-        List<Region> regionList = regionService.getRegionList(parentId);
+        List<RegionPO> regionList = regionService.getRegionList(parentId);
         return ResponseEntity.ok(regionList);
     }
 

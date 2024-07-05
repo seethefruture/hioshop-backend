@@ -1,7 +1,7 @@
 package com.example.mapper;
 
-import com.example.vo.Order;
-import com.example.vo.OrderGoods;
+import com.example.po.OrderGoodsPO;
+import com.example.po.OrderPO;
 import org.apache.ibatis.annotations.*;
 
 import java.util.Date;
@@ -11,14 +11,14 @@ import java.util.Map;
 @Mapper
 public interface OrderMapper {
 
-    @Select("SELECT * FROM `order` WHERE order_status IN (101, 801) AND add_time < #{expireTime} AND is_delete = 0")
-    List<Order> findExpiredOrders(@Param("expireTime") long expireTime);
+    @Select("SELECT * FROM `orders` WHERE order_status IN (101, 801) AND add_time < #{expireTime} AND is_delete = 0")
+    List<OrderPO> findExpiredOrders(@Param("expireTime") long expireTime);
 
-    @Select("SELECT * FROM `order` WHERE order_status = 301 AND shipping_time <= #{noConfirmTime} AND shipping_time <> 0 AND is_delete = 0")
-    List<Order> findNoConfirmOrders(@Param("noConfirmTime") long noConfirmTime);
+    @Select("SELECT * FROM `orders` WHERE order_status = 301 AND shipping_time <= #{noConfirmTime} AND shipping_time <> 0 AND is_delete = 0")
+    List<OrderPO> findNoConfirmOrders(@Param("noConfirmTime") long noConfirmTime);
 
-    @Update("UPDATE `order` SET order_status = #{orderStatus}, confirm_time = #{confirmTime} WHERE id = #{id}")
-    int update(Order order);
+    @Update("UPDATE `orders` SET order_status = #{orderStatus}, confirm_time = #{confirmTime} WHERE id = #{id}")
+    int update(OrderPO order);
 
     List<Map<String, Object>> listOrders(@Param("userId") String userId, @Param("showType") int showType, @Param("offset") int offset, @Param("limit") int limit);
 
@@ -26,9 +26,9 @@ public interface OrderMapper {
 
     Map<String, Integer> getOrderCountByStatus(@Param("userId") String userId);
 
-    Order getOrderDetails(@Param("orderId") String orderId, @Param("userId") String userId);
+    OrderPO getOrderDetails(@Param("orderId") String orderId, @Param("userId") String userId);
 
-    List<OrderGoods> getOrderGoods(@Param("orderId") String orderId, @Param("userId") String userId);
+    List<OrderGoodsPO> getOrderGoods(@Param("orderId") String orderId, @Param("userId") String userId);
 
     void cancelOrder(@Param("orderId") String orderId, @Param("userId") String userId);
 
@@ -58,7 +58,7 @@ public interface OrderMapper {
             "        AND order_status IN  #{status}\n" +
             "        ORDER BY add_time DESC\n" +
             "        LIMIT #{page}, #{size}")
-    List<Order> findOrders(@Param("userId") String userId, @Param("isDelete") Boolean isDelete, @Param("status") List<Integer> status, @Param("page") int page, @Param("size") int size);
+    List<OrderPO> findOrders(@Param("userId") String userId, @Param("isDelete") Boolean isDelete, @Param("status") List<Integer> status, @Param("page") int page, @Param("size") int size);
 
     @Select("  SELECT add_time FROM orders WHERE id = #{orderId}")
     Long getOrderAddTime(@Param("orderId") String orderId);
@@ -82,10 +82,10 @@ public interface OrderMapper {
     int countOrderByStatus(@Param("userId") String userId, @Param("isDelete") Boolean isDelete, @Param("status") String status);
 
     @Select("SELECT * FROM order WHERE id = #{orderId} AND user_id = #{userId}")
-    Order findOrderByIdAndUserId(@Param("orderId") String orderId, @Param("userId") String userId);
+    OrderPO findOrderByIdAndUserId(@Param("orderId") String orderId, @Param("userId") String userId);
 
     @Select("SELECT * FROM order WHERE id = #{orderId}")
-    Order findOrderById(@Param("orderId") String orderId);
+    OrderPO findOrderById(@Param("orderId") String orderId);
 
     @Select("SELECT * FROM order_goods WHERE order_id = #{orderId} AND user_id = #{userId} AND is_delete = 0")
     List<Map<String, Object>> findOrderGoodsByOrderIdAndUserId(@Param("orderId") String orderId, @Param("userId") String userId);
@@ -102,13 +102,13 @@ public interface OrderMapper {
 
     String generateOrderNumber();
 
-    void updateOrder(@Param("orderId") String orderId, @Param("order") Order order);
+    void updateOrder(@Param("orderId") String orderId, @Param("order") OrderPO order);
 
 
-    List<OrderGoods> findOrderGoodsByOrderId(@Param("orderId") String orderId);
+    List<OrderGoodsPO> findOrderGoodsByOrderId(@Param("orderId") String orderId);
 
     @Select("SELECT * FROM orders WHERE id = #{orderId}")
-    Order findById(@Param("orderId") String orderId);
+    OrderPO findById(@Param("orderId") String orderId);
 
     @Update("UPDATE orders SET pay_time = #{payTime} WHERE id = #{orderId}")
     int updatePayTime(@Param("orderId") String orderId, @Param("payTime") Date payTime);
@@ -124,7 +124,7 @@ public interface OrderMapper {
 
 
     @Select("SELECT * FROM orders WHERE order_sn = #{orderSn}")
-    Order findByOrderSn(@Param("orderSn") String orderSn);
+    OrderPO findByOrderSn(@Param("orderSn") String orderSn);
 
     @Update({
             "<script>",

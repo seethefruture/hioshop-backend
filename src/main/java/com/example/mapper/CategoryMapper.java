@@ -1,7 +1,6 @@
 package com.example.mapper;
 
-import com.example.po.Category;
-import com.example.po.Goods;
+import com.example.po.CategoryPO;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -9,17 +8,17 @@ import java.util.List;
 @Mapper
 public interface CategoryMapper {
 
-    List<Category> selectRootCategories();
+    List<CategoryPO> selectRootCategories();
 
-    Category selectCategoryById(@Param("id") String id);
+    CategoryPO selectCategoryById(@Param("id") String id);
 
-    List<Category> findChannelCategories();
+    List<CategoryPO> findChannelCategories();
 
-    List<Category> findShowCategories();
+    List<CategoryPO> findShowCategories();
 
     int updateSortOrder(@Param("id") String id, @Param("sort") Integer sort);
 
-    List<Category> selectTopCategory();
+    List<CategoryPO> selectTopCategory();
 
     @Update("UPDATE category SET is_show = #{status} WHERE id = #{id}")
     void updateShowStatus(@Param("id") String id, @Param("status") Integer status);
@@ -36,12 +35,12 @@ public interface CategoryMapper {
     @Update("UPDATE category SET icon_url = '' WHERE id = #{id}")
     void deleteIconImage(@Param("id") String id);
 
-    void insertCategory(Category category);
+    void insertCategory(CategoryPO categoryPO);
 
-    void updateCategory(Category category);
+    void updateCategory(CategoryPO categoryPO);
 
     @Select("SELECT * FROM category WHERE parent_id = #{parentId}")
-    List<Category> selectSubCategories(@Param("parentId") Long parentId);
+    List<CategoryPO> selectSubCategories(@Param("parentId") String parentId);
 
     @Delete("DELETE FROM category WHERE id = #{id}")
     void deleteCategory(@Param("id") String id);
@@ -49,9 +48,9 @@ public interface CategoryMapper {
     String findCategoryNameById(String categoryId);
 
     @Select("select  * from category where level =#{level} and parent_id=#{parentId}")
-    List<Category> findCategoriesByLevelAndParentId(@Param("level") String level, @Param("parentId") String parentId);
+    List<CategoryPO> findCategoriesByLevelAndParentId(@Param("level") String level, @Param("parentId") String parentId);
 
     @Select("select  * from category where level =#{level} and parent_id in #{parentIdList}")
-    List<Category> findCategoriesByLevelAndParentIdList(@Param("level") String level, @Param("parentIdList") List<String> parentIdList);
+    List<CategoryPO> findCategoriesByLevelAndParentIdList(@Param("level") String level, @Param("parentIdList") List<String> parentIdList);
 }
 

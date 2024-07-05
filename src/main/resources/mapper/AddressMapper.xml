@@ -24,7 +24,7 @@
           AND user_id = #{userId}
     </update>
 
-    <select id="findAddressFullNameByUserId" resultType="com.example.po.Address">
+    <select id="findAddressFullNameByUserId" resultType="com.example.vo.Address">
         SELECT A.*,
                R1.name                           AS province_name,
                R2.name                           AS city_name,
@@ -37,7 +37,7 @@
         WHERE A.user_id = #{userId}
     </select>
 
-    <select id="findAddressFullNameById" resultType="com.example.po.Address">
+    <select id="findAddressFullNameById" resultType="com.example.vo.vo">
         SELECT A.*,
                R1.name                           AS province_name,
                R2.name                           AS city_name,
@@ -50,13 +50,13 @@
         WHERE A.id = #{id}
     </select>
 
-    <select id="findById" resultType="com.example.po.Address">
+    <select id="findById" resultType="com.example.po.AddressPO">
         SELECT *
         FROM address
         WHERE id = #{id}
     </select>
 
-    <select id="getDefaultAddress" resultType="com.example.po.Address">
+    <select id="getDefaultAddress" resultType="com.example.po.AddressPO">
         SELECT *
         FROM address
         WHERE user_id = #{userId}

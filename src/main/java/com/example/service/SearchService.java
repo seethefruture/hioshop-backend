@@ -2,7 +2,7 @@ package com.example.service;
 
 import com.example.mapper.KeywordsMapper;
 import com.example.mapper.SearchHistoryMapper;
-import com.example.vo.Keywords;
+import com.example.po.KeywordsPO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +20,8 @@ public class SearchService {
     private SearchHistoryMapper searchHistoryMapper;
 
     public Map<String, Object> getIndexData(Long userId) {
-        Keywords defaultKeyword = keywordsMapper.findDefaultKeyword();
-        List<Keywords> hotKeywordList = keywordsMapper.findHotKeywords();
+        KeywordsPO defaultKeyword = keywordsMapper.findDefaultKeyword();
+        List<KeywordsPO> hotKeywordList = keywordsMapper.findHotKeywords();
         List<String> historyKeywordList = searchHistoryMapper.findHistoryKeywordsByUserId(userId);
 
         Map<String, Object> data = new HashMap<>();

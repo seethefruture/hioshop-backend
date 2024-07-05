@@ -4,8 +4,8 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.example.mapper.FootprintMapper;
 import com.example.mapper.GoodsMapper;
-import com.example.vo.Footprint;
-import com.example.vo.Goods;
+import com.example.po.FootprintPO;
+import com.example.po.GoodsPO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +26,10 @@ public class FootprintService {
         footprintMapper.deleteFootprintByUserAndId(footprintId);
     }
 
-    public List<Footprint> listFootprints(String userId, int page, int size) {
-        List<Footprint> footprints = footprintMapper.findFootprintsByUserId(userId, (page - 1) * size, size);
-        for (Footprint footprint : footprints) {
-            Goods goods = goodsMapper.findById(footprint.getGoodsId());
-            footprint.setAddTime(formatAddTime(footprint.getAddTime()));
+    public List<FootprintPO> listFootprints(String userId, int page, int size) {
+        List<FootprintPO> footprints = footprintMapper.findFootprintsByUserId(userId, (page - 1) * size, size);
+        for (FootprintPO footprint : footprints) {
+            GoodsPO goods = goodsMapper.findById(footprint.getGoodsId());
             footprint.setGoods(goods);
         }
         return footprints;
@@ -47,18 +46,16 @@ public class FootprintService {
     }
 
     public void addFootprint(String userId, String goodsId) {
-        if (StrUtil.isNotEmpty(userId) && StrUtil.isNotEmpty(goodsId) ) {
+        if (StrUtil.isNotEmpty(userId) && StrUtil.isNotEmpty(goodsId)) {
             long currentTime = System.currentTimeMillis() / 1000;
-            Footprint footprint = footprintMapper.findByUserIdAndGoodsId(goodsId, userId);
+            FootprintPO footprint = footprintMapper.findByUserIdAndGoodsId(goodsId, userId);
 
             if (footprint == null) {
-                footprint = new Footprint();
+                footprint = new FootprintPO();
                 footprint.setUserId(userId);
                 footprint.setGoodsId(goodsId);
-                footprint.setAddTime(String.valueOf(currentTime));
                 footprintMapper.insert(footprint);
             } else {
-                footprint.setAddTime(String.valueOf(currentTime));
                 footprintMapper.update(footprint);
             }
         }

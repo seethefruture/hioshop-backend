@@ -66,7 +66,7 @@
           AND is_delete = 0
     </select>
 
-    <select id="getCharts" resultType="com.example.po.Cart">
+    <select id="getCharts" resultType="com.example.po.CartPO">
         SELECT *
         FROM cart
         WHERE user_id = #{userId}

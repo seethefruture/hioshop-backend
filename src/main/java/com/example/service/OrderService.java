@@ -2,11 +2,12 @@ package com.example.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
-import com.example.vo.*;
+import com.example.po.*;
 import com.example.mapper.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
@@ -22,15 +23,17 @@ public class OrderService {
     private OrderGoodsMapper orderGoodsMapper;
     @Autowired
     private RegionMapper regionMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     public Map<String, Object> listAllOrders(String userId, int showType, int page, int size) {
         List<Integer> status = getOrderStatus(showType);
-        List<Order> orderList = orderMapper.findOrders(userId, false, status, page, size);
+        List<OrderPO> orderList = orderMapper.findOrders(userId, false, status, page, size);
 
-        for (Order order : orderList) {
-            List<OrderGoods> goodsList = orderGoodsMapper.findOrderGoods(userId, order.getId(), false);
+        for (OrderPO order : orderList) {
+            List<OrderGoodsPO> goodsList = orderGoodsMapper.findOrderGoods(userId, order.getId(), false);
             int goodsCount = 0;
-            for (OrderGoods goods : goodsList) {
+            for (OrderGoodsPO goods : goodsList) {
                 goodsCount += goods.getNumber();
             }
             order.setGoodsList(goodsList);
@@ -69,7 +72,7 @@ public class OrderService {
     }
 
     public Map<String, Object> getOrderDetail(String orderId, String userId) {
-        Order order = orderMapper.findOrderByIdAndUserId(orderId, userId);
+        OrderPO order = orderMapper.findOrderByIdAndUserId(orderId, userId);
         long currentTime = System.currentTimeMillis() / 1000;
         if (order == null) {
             throw new RuntimeException("订单不存在");
@@ -81,8 +84,8 @@ public class OrderService {
         order.setFullRegion(order.getProvinceName() + order.getCityName() + order.getDistrictName());
         order.setPostscript(new String(Base64.getDecoder().decode(order.getPostscript()), StandardCharsets.UTF_8));
 
-        List<OrderGoods> orderGoods = orderGoodsMapper.findOrderGoods(userId, orderId, null);
-        int goodsCount = orderGoods.stream().mapToInt(OrderGoods::getNumber).sum();
+        List<OrderGoodsPO> orderGoods = orderGoodsMapper.findOrderGoods(userId, orderId, null);
+        int goodsCount = orderGoods.stream().mapToInt(OrderGoodsPO::getNumber).sum();
         order.setOrderStatusText(orderMapper.getOrderStatusText(orderId));
         if (order.getOrderStatus() == 101 || order.getOrderStatus() == 801) {
             order.setFinalPayTime(order.getAddTime() + 24 * 60 * 60);
@@ -117,7 +120,7 @@ public class OrderService {
     }
 
     public Map<String, Object> cancelOrder(String orderId, String userId) {
-        Order order = orderMapper.findOrderByIdAndUserId(orderId, userId);
+        OrderPO order = orderMapper.findOrderByIdAndUserId(orderId, userId);
         if (order == null || order.getHandleOption().get("") != null) {
             throw new RuntimeException("订单不能取消");
         }
@@ -127,7 +130,7 @@ public class OrderService {
     }
 
     public Map<String, Object> deleteOrder(String orderId) {
-        Order order = orderMapper.findOrderById(orderId);
+        OrderPO order = orderMapper.findOrderById(orderId);
         if (order == null || order.getHandleOption().get("") != null) {
             throw new RuntimeException("订单不能删除");
         }
@@ -241,8 +244,8 @@ public class OrderService {
     private RestTemplate restTemplate;
 
     public Map<String, Object> updateOrder(String addressId, String orderId) {
-        Address updateAddress = addressMapper.findById(addressId);
-        Order orderInfo = new Order();
+        AddressPO updateAddress = addressMapper.findById(addressId);
+        OrderPO orderInfo = new OrderPO();
         orderInfo.setConsignee(updateAddress.getName());
         orderInfo.setMobile(updateAddress.getMobile());
         orderInfo.setProvince(updateAddress.getProvinceId());
@@ -258,7 +261,7 @@ public class OrderService {
 
     public Map<String, Object> getExpressInfo(String orderId) throws Exception {
         long currentTime = System.currentTimeMillis() / 1000;
-        OrderExpress info = orderExpressMapper.findByOrderId(orderId);
+        OrderExpressPO info = orderExpressMapper.findByOrderId(orderId);
 
         if (info == null) {
             throw new Exception("暂无物流信息");
@@ -266,34 +269,34 @@ public class OrderService {
 
         long updateTime = info.getUpdateTime();
         long com = (currentTime - updateTime) / 60;
-        int isFinish = info.getIsFinish();
+        int isFinish = info.isFinish();
 
         if (isFinish == 1 || (updateTime != 0 && com < 20)) {
             return createExpressResponse(info);
         } else {
             String shipperCode = info.getShipperCode();
             String expressNo = info.getLogisticCode();
-            OrderExpress lastExpressInfo = getExpressInfoFromAPI(shipperCode, expressNo);
-            lastExpressInfo.setUpdateTime(System.currentTimeMillis() / 1000);
+            OrderExpressPO lastExpressInfo = getExpressInfoFromAPI(shipperCode, expressNo);
+            lastExpressInfo.setUpdateTime(System.currentTimeMillis());
             orderExpressMapper.update(lastExpressInfo);
             return createExpressResponse(lastExpressInfo);
         }
     }
 
-    private Map<String, Object> createExpressResponse(OrderExpress info) {
+    private Map<String, Object> createExpressResponse(OrderExpressPO info) {
         Map<String, Object> expressInfo = new HashMap<>();
         expressInfo.put("express_status", getDeliveryStatus(info.getExpressStatus()));
-        expressInfo.put("is_finish", info.getIsFinish());
+        expressInfo.put("is_finish", info.isFinish());
         expressInfo.put("traces", JSON.parse(info.getTraces()));
         expressInfo.put("update_time", info.getUpdateTime());
         return expressInfo;
     }
 
-    private OrderExpress getExpressInfoFromAPI(String shipperCode, String expressNo) {
+    private OrderExpressPO getExpressInfoFromAPI(String shipperCode, String expressNo) {
         String url = "http://wuliu.market.alicloudapi.com/kdi?no=" + expressNo + "&type=" + shipperCode;
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
         Map<String, Object> sessionData = JSON.parseObject(response.getBody(), Map.class);
-        return JSON.parseObject(sessionData.get("result").toString(), OrderExpress.class);
+        return JSON.parseObject(sessionData.get("result").toString(), OrderExpressPO.class);
     }
 
     private String getDeliveryStatus(int status) {
@@ -331,7 +334,7 @@ public class OrderService {
         handleOption.put("confirm", false);
         handleOption.put("cancel_refund", false);
 
-//        Order orderInfo = orderMapper.findById(orderId);
+//        OrderPO orderInfo = orderMapper.findById(orderId);
         if (orderStatus == 101 || orderStatus == 801) {
             handleOption.put("cancel", true);
             handleOption.put("pay", true);
@@ -482,9 +485,9 @@ public class OrderService {
      * 根据订单编号查找订单信息
      *
      * @param orderSn 订单编号
-     * @return Order
+     * @return OrderPO
      */
-    public Order getOrderByOrderSn(String orderSn) {
+    public OrderPO getOrderByOrderSn(String orderSn) {
         if (orderSn == null || orderSn.isEmpty()) {
             return null;
         }
@@ -529,13 +532,13 @@ public class OrderService {
         Map<String, Object> data = new HashMap<>();
 
         if (logisticCode.isEmpty()) {
-            List<Order> orders = orderMapper.findOrders(page, size, orderSn, consignee, status);
-            for (Order order : orders) {
+            List<OrderPO> orders = orderMapper.findOrders(page, size, orderSn, consignee, status);
+            for (OrderPO order : orders) {
                 order.setGoodsList(orderGoodsMapper.findGoodsByOrderId(order.getId()));
-                order.setGoodsCount(order.getGoodsList().stream().mapToInt(OrderGoods::getNumber).sum());
+                order.setGoodsCount(order.getGoodsList().stream().mapToInt(OrderGoodsPO::getNumber).sum());
 
-                // User info
-                User user = orderMapper.findUserById(order.getUserId());
+                // UserPO info
+                UserPO user = userMapper.findById(order.getUserId());
                 if (user != null) {
                     user.setNickname(new String(Base64.getDecoder().decode(user.getNickname()), StandardCharsets.UTF_8));
                 } else {
@@ -543,7 +546,7 @@ public class OrderService {
                 }
                 order.setUserInfo(user);
 
-                // Region info
+                // RegionPO info
                 String provinceName = regionMapper.findNameById(order.getProvince());
                 String cityName = regionMapper.findNameById(order.getCity());
                 String districtName = regionMapper.findNameById(order.getDistrict());
@@ -559,7 +562,7 @@ public class OrderService {
                 order.setOrderStatusText(orderMapper.getOrderStatusText(order.getId()));
 
                 // Express info
-                OrderExpress express = orderExpressMapper.findByOrderId(order.getId());
+                OrderExpressPO express = orderExpressMapper.findByOrderId(order.getId());
                 if (express != null) {
                     order.setExpressInfo(express.getShipperName() + express.getLogisticCode());
                 } else {
@@ -568,10 +571,10 @@ public class OrderService {
             }
             data.put("data", orders);
         } else {
-            OrderExpress express = orderExpressMapper.findByLogisticCode(logisticCode);
+            OrderExpressPO express = orderExpressMapper.findByLogisticCode(logisticCode);
             if (express != null) {
                 int orderId = express.getOrderId();
-                List<Order> orders = orderMapper.findOrdersById(page, size, orderId);
+                List<OrderPO> orders = orderMapper.findOrdersById(page, size, orderId);
                 // Process orders as before
             }
         }
@@ -586,12 +589,12 @@ public class OrderService {
 
     public Map<String, Object> getDeliveryOrders(int page, int size, String status) {
         Map<String, Object> data = new HashMap<>();
-        List<Order> orders = orderMapper.findDeliveryOrders(page, size, status);
-        for (Order order : orders) {
+        List<OrderPO> orders = orderMapper.findDeliveryOrders(page, size, status);
+        for (OrderPO order : orders) {
             order.setGoodsList(orderGoodsMapper.findGoodsByOrderId(order.getId()));
-            order.setGoodsCount(order.getGoodsList().stream().mapToInt(OrderGoods::getNumber).sum());
+            order.setGoodsCount(order.getGoodsList().stream().mapToInt(OrderGoodsPO::getNumber).sum());
 
-            // Region info
+            // RegionPO info
             String provinceName = regionMapper.findNameById(order.getProvince());
             String cityName = regionMapper.findNameById(order.getCity());
             String districtName = regionMapper.findNameById(order.getDistrict());
@@ -672,7 +675,7 @@ public class OrderService {
         return new HashMap<>();
     }
 
-    public List<Region> getAllRegion() {
+    public List<RegionPO> getAllRegion() {
         // Your implementation here
         return regionMapper.findAll();
     }
@@ -739,7 +742,7 @@ public class OrderService {
         return new HashMap<>();
     }
 
-    public Map<String, Object> store(Order order) {
+    public Map<String, Object> store(OrderPO order) {
         // Your implementation here
         return new HashMap<>();
     }

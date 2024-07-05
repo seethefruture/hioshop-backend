@@ -2,7 +2,7 @@ package com.example.api;
 
 import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.example.vo.Cart;
+import com.example.po.CartPO;
 import com.example.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +57,7 @@ public class CartController {
     @GetMapping("/goodsCount")
     public ResponseEntity<?> getGoodsCount() {
         String userId = getLoginUserId();
-        List<Cart> cartData = cartService.getCarts(userId, false, null);
+        List<CartPO> cartData = cartService.getCarts(userId, false, null);
         cartService.updateFastCart(userId);
         JSONObject result = new JSONObject().fluentPut("cartTotal", new JSONObject().fluentPut("goodsCount", cartData.size()));
         return ResponseEntity.ok(result);
@@ -82,12 +82,12 @@ public class CartController {
     }
 
     @GetMapping("/goodsList")
-    public List<Cart> getGoodsList(@RequestParam String userId) {
+    public List<CartPO> getGoodsList(@RequestParam String userId) {
         return cartService.getGoodsList(userId);
     }
 
     @GetMapping("/checkedGoodsList")
-    public List<Cart> getCheckedGoodsList(@RequestParam String userId) {
+    public List<CartPO> getCheckedGoodsList(@RequestParam String userId) {
         return cartService.getCheckedGoodsList(userId);
     }
 

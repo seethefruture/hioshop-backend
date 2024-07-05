@@ -1,6 +1,6 @@
 package com.example.api;
 
-import com.example.vo.Address;
+import com.example.po.AddressPO;
 import com.example.service.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,7 @@ public class AddressController {
     @GetMapping("/list")
     public ResponseEntity<?> getAddresses() {
         String userId = getLoginUserId();
-        List<Address> addressList = addressService.getAddresses(userId);
+        List<AddressPO> addressList = addressService.getAddresses(userId);
         return ResponseEntity.ok(addressList);
     }
 
@@ -34,9 +34,9 @@ public class AddressController {
      * @return
      */
     @PostMapping("/save")
-    public ResponseEntity<?> saveAddress(@RequestBody Address address) {
+    public ResponseEntity<?> saveAddress(@RequestBody AddressPO address) {
         String userId = getLoginUserId();
-        Address savedAddress = addressService.saveAddress(userId, address);
+        AddressPO savedAddress = addressService.saveAddress(userId, address);
         return ResponseEntity.ok(savedAddress);
     }
 
@@ -61,7 +61,7 @@ public class AddressController {
     @GetMapping("/detail")
     public ResponseEntity<?> addressDetail(@RequestParam String id) {
         String userId = getLoginUserId();
-        Address address = addressService.getAddressDetail(userId, id);
+        AddressPO address = addressService.getAddressDetail(userId, id);
         return ResponseEntity.ok(address);
     }
 

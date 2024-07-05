@@ -1,6 +1,6 @@
 package com.example.mapper;
 
-import com.example.vo.Shipper; // Assuming Shipper is your POJO class
+import com.example.po.ShipperPO; // Assuming com.example.po.ShipperPO is your POJO class
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -13,10 +13,10 @@ public interface ShipperMapper {
 
     String getShipperNameByCode(@Param("shipperCode") String shipperCode);
 
-    Shipper getShipperById(@Param("shipperId") Long shipperId);
+    ShipperPO getShipperById(@Param("shipperId") Long shipperId);
 
     @Select("SELECT * FROM shipper WHERE enabled = 1")
-    List<Shipper> findEnabledShippers();
+    List<ShipperPO> findEnabledShippers();
 
 
     void updateShipperSettings(Map<String, Object> settings);

@@ -1,13 +1,17 @@
 package com.example.mapper;
 
-import com.example.vo.OrderExpress;
+import com.example.po.OrderExpressPO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface OrderExpressMapper {
 
-    OrderExpress findByOrderId(@Param("orderId") String orderId);
+    @Select("select * from order_express where order_id =#{orderId}")
+    OrderExpressPO findByOrderId(@Param("orderId") String orderId);
 
-    void update(OrderExpress orderExpress);
+    @Update("update order_express set request_time=#{requestTime},update_time=#{updateTime},request_count=#{requestCount} where order_id=#{orderId}")
+    void update(@Param("requestTime") long requestTime, @Param("updateTime") long updateTime, @Param("requestCount") int requestCount, @Param("orderId") String orderId);
 }

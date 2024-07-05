@@ -1,7 +1,7 @@
 package com.example.service;
 
 import com.example.mapper.RegionMapper;
-import com.example.vo.Region;
+import com.example.po.RegionPO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,15 +14,15 @@ public class RegionService {
     @Autowired
     private RegionMapper regionMapper;
 
-    public Region getRegionInfo(Long regionId) {
+    public RegionPO getRegionInfo(Long regionId) {
         return regionMapper.getRegionInfo(regionId);
     }
 
-    public List<Region> getRegionList(Long parentId) {
+    public List<RegionPO> getRegionList(Long parentId) {
         return regionMapper.getRegionList(parentId);
     }
 
-    public List<Region> getData(Long parentId) {
+    public List<RegionPO> getData(Long parentId) {
         return regionMapper.getRegionList(parentId);
     }
 
