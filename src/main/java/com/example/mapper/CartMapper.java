@@ -18,7 +18,7 @@ public interface CartMapper {
 
     void insert(CartPO cartPO);
 
-    void updateAddAgain(@Param("retailPrice") String retailPrice, @Param("checked") Boolean checked, @Param("number") Integer number, @Param("id") String id);
+    void updateAddAgain(@Param("retailPrice") Long retailPrice, @Param("checked") Boolean checked, @Param("number") Integer number, @Param("id") String id);
 
     int deleteCheckedProducts(@Param("userId") String userId);
 

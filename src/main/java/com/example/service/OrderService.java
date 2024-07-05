@@ -269,24 +269,23 @@ public class OrderService {
 
         long updateTime = info.getUpdateTime();
         long com = (currentTime - updateTime) / 60;
-        int isFinish = info.isFinish();
+        Boolean isFinish = info.getIsFinish();
 
-        if (isFinish == 1 || (updateTime != 0 && com < 20)) {
+        if (isFinish || (updateTime != 0 && com < 20)) {
             return createExpressResponse(info);
         } else {
             String shipperCode = info.getShipperCode();
             String expressNo = info.getLogisticCode();
             OrderExpressPO lastExpressInfo = getExpressInfoFromAPI(shipperCode, expressNo);
-            lastExpressInfo.setUpdateTime(System.currentTimeMillis());
-            orderExpressMapper.update(lastExpressInfo);
+            orderExpressMapper.update(lastExpressInfo.getRequestTime(), System.currentTimeMillis(), lastExpressInfo.getRequestCount(), orderId);
             return createExpressResponse(lastExpressInfo);
         }
     }
 
     private Map<String, Object> createExpressResponse(OrderExpressPO info) {
         Map<String, Object> expressInfo = new HashMap<>();
-        expressInfo.put("express_status", getDeliveryStatus(info.getExpressStatus()));
-        expressInfo.put("is_finish", info.isFinish());
+//        expressInfo.put("express_status", getDeliveryStatus(info.getExpressStatus()));
+        expressInfo.put("is_finish", info.getIsFinish());
         expressInfo.put("traces", JSON.parse(info.getTraces()));
         expressInfo.put("update_time", info.getUpdateTime());
         return expressInfo;
@@ -532,9 +531,9 @@ public class OrderService {
         Map<String, Object> data = new HashMap<>();
 
         if (logisticCode.isEmpty()) {
-            List<OrderPO> orders = orderMapper.findOrders(page, size, orderSn, consignee, status);
+            List<OrderPO> orders = orderMapper.findOrdersInfo(orderSn, consignee, status, page, size);
             for (OrderPO order : orders) {
-                order.setGoodsList(orderGoodsMapper.findGoodsByOrderId(order.getId()));
+                order.setGoodsList(orderGoodsMapper.findByOrderId(order.getId()));
                 order.setGoodsCount(order.getGoodsList().stream().mapToInt(OrderGoodsPO::getNumber).sum());
 
                 // UserPO info
@@ -542,25 +541,20 @@ public class OrderService {
                 if (user != null) {
                     user.setNickname(new String(Base64.getDecoder().decode(user.getNickname()), StandardCharsets.UTF_8));
                 } else {
+                    user = new UserPO();
                     user.setNickname("已删除");
                 }
                 order.setUserInfo(user);
 
                 // RegionPO info
-                String provinceName = regionMapper.findNameById(order.getProvince());
-                String cityName = regionMapper.findNameById(order.getCity());
-                String districtName = regionMapper.findNameById(order.getDistrict());
+                Map<String, String> manyRegionNameById = regionMapper.getManyRegionNameById(Arrays.asList(order.getProvince(), order.getCity(), order.getDistrict()));
+                String provinceName = manyRegionNameById.get(order.getProvince());
+                String cityName = manyRegionNameById.get(order.getCity());
+                String districtName = manyRegionNameById.get(order.getDistrict());
                 order.setFullRegion(provinceName + cityName + districtName);
-
                 order.setPostscript(new String(Base64.getDecoder().decode(order.getPostscript()), StandardCharsets.UTF_8));
-
-                // Format times
-                order.setAddTime(order.getAddTimeFormatted());
-                order.setPayTime(order.getPayTimeFormatted());
-
                 // Status text
                 order.setOrderStatusText(orderMapper.getOrderStatusText(order.getId()));
-
                 // Express info
                 OrderExpressPO express = orderExpressMapper.findByOrderId(order.getId());
                 if (express != null) {
@@ -573,8 +567,8 @@ public class OrderService {
         } else {
             OrderExpressPO express = orderExpressMapper.findByLogisticCode(logisticCode);
             if (express != null) {
-                int orderId = express.getOrderId();
-                List<OrderPO> orders = orderMapper.findOrdersById(page, size, orderId);
+                String orderId = express.getOrderId();
+                OrderPO order = orderMapper.findById(orderId);
                 // Process orders as before
             }
         }
@@ -595,13 +589,12 @@ public class OrderService {
             order.setGoodsCount(order.getGoodsList().stream().mapToInt(OrderGoodsPO::getNumber).sum());
 
             // RegionPO info
-            String provinceName = regionMapper.findNameById(order.getProvince());
-            String cityName = regionMapper.findNameById(order.getCity());
-            String districtName = regionMapper.findNameById(order.getDistrict());
-            order.setAddress(provinceName + cityName + districtName + order.getAddress());
-
+            Map<String, String> manyRegionNameById = regionMapper.getManyRegionNameById(Arrays.asList(order.getProvince(), order.getCity(), order.getDistrict()));
+            String provinceName = manyRegionNameById.get(order.getProvince());
+            String cityName = manyRegionNameById.get(order.getCity());
+            String districtName = manyRegionNameById.get(order.getDistrict());
+            order.setAddress(provinceName + cityName + districtName+order.getAddress());
             order.setPostscript(new String(Base64.getDecoder().decode(order.getPostscript()), StandardCharsets.UTF_8));
-            order.setAddTime(order.getAddTimeFormatted());
             order.setOrderStatusText(orderMapper.getOrderStatusText(order.getId()));
             order.setButtonText(orderMapper.getOrderBtnText(order.getId()));
         }
@@ -640,7 +633,7 @@ public class OrderService {
         double price = Double.parseDouble((String) payload.get("retail_price"));
         double changePrice = number * price;
 
-        orderGoodsMapper.deleteGoods(id);
+        orderGoodsMapper.delete(id);
         orderMapper.decrementOrderPrice(orderId, changePrice);
 
         String orderSn = orderMapper.generateOrderNumber();

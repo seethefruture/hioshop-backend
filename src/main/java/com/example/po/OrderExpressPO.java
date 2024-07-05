@@ -11,11 +11,13 @@ public class OrderExpressPO {
     private String shipperCode; // 物流公司代码
     private String logisticCode; // 快递单号
     private String traces; // 物流跟踪信息
-    private boolean isFinish; // 是否完成
-    private int requestCount; // 总查询次数
-    private int requestTime; // 最近一次向第三方查询物流信息时间
+    private Boolean isFinish; // 是否完成
+    private Integer requestCount; // 总查询次数
+    private Integer requestTime; // 最近一次向第三方查询物流信息时间
     private Long addTime; // 添加时间
     private Long updateTime; // 更新时间
-    private boolean expressType; // 快递类型
+    private Boolean expressType; // 快递类型
     private String regionCode; // 快递的地区编码，如杭州571
+
+    private String expressStatus; // @Transient
 }

@@ -61,9 +61,9 @@ public class CartService {
             if (product == null) {
                 productIdTODeleteInChart.add(cartItem.getProductId());
             } else {
-                double retailPrice = product.getRetailPrice();
-                int productNum = product.getGoodsNumber();
-                if (productNum <= 0 || !product.isOnSale()) {
+                Long retailPrice = product.getRetailPrice();
+                Integer productNum = product.getGoodsNumber();
+                if (productNum <= 0 || !product.getIsOnSale()) {
                     cartItem.setChecked(false);
                     cartItem.setNumber(0);
                 } else if (productNum < cartItem.getNumber()) {
@@ -82,7 +82,7 @@ public class CartService {
                 }
                 GoodsPO goods = goodsInfoListGroup.get(cartItem.getGoodsId());
                 cartItem.setListPicUrl(goods.getListPicUrl());
-                cartItem.setWeightCount(cartItem.getNumber() * cartItem.getGoodsWeight());
+//                cartItem.setWeightCount(cartItem.getNumber() * cartItem.getGoodsWeight());
                 cartItemTOUpdate.add(cartItem);
             }
             cartMapper.updateCart(cartItemTOUpdate);
@@ -106,10 +106,10 @@ public class CartService {
 
     public void addAgain(String goodsId, String productId, int number) {
         String userId = getLoginUserId();
-        long currentTime = System.currentTimeMillis() / 1000;
+        long currentTime = System.currentTimeMillis();
 
         GoodsPO goods = goodsMapper.findById(goodsId);
-        if (goods == null || !goods.isOnSale()) {
+        if (goods == null || !goods.getIsOnSale()) {
             throw new RuntimeException("商品已下架");
         }
 
@@ -119,7 +119,7 @@ public class CartService {
         }
 
         CartPO cart = CollUtil.getFirst(cartMapper.getCharts(userId, null, productId));
-        BigDecimal retailPrice = product.getRetailPrice();
+        Long retailPrice = product.getRetailPrice();
 
         if (cart == null) {
             List<String> goodsSpecificationValues = productMapper.findSpecificationValues(productId, null);
@@ -136,7 +136,7 @@ public class CartService {
             newCart.setUserId(userId);
             newCart.setRetailPrice(retailPrice);
             newCart.setAddPrice(retailPrice);
-            newCart.setGoodsSpecificationNameValue(specificationNameValue);
+            newCart.setGoodsSpecifitionNameValue(specificationNameValue);
             newCart.setChecked(true);
             newCart.setAddTime(currentTime);
             cartMapper.insert(newCart);
@@ -144,10 +144,7 @@ public class CartService {
             if (product.getGoodsNumber() < (number + cart.getNumber())) {
                 throw new RuntimeException("库存都不够啦");
             }
-            cart.setRetailPrice(retailPrice);
-            cart.setChecked(true);
-            cart.setNumber(number);
-            cartMapper.updateAddAgain(cart);
+            cartMapper.updateAddAgain(retailPrice, true, number, cart.getId());
         }
     }
 

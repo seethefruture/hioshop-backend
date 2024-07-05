@@ -20,4 +20,14 @@ public class GoodsSpecificationPO implements Serializable {
     private String value; // 规格值
     private String picUrl; // 图片URL
     private boolean isDelete; // 是否删除，0为未删除，1为删除
+    private Integer goodsNumber; // @Transient
+
+    public GoodsSpecificationPO(String goodsSpecificationId, String goodsId, String specValue, String specificationId, String s, boolean b) {
+        this.id = goodsSpecificationId;
+        this.goodsId = goodsId;
+        this.value = specValue;
+        this.specificationId = specificationId;
+        this.picUrl = s;
+        this.isDelete = b;
+    }
 }

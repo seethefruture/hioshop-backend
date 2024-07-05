@@ -3,6 +3,7 @@ package com.example.mapper;
 import com.example.po.OrderGoodsPO;
 import com.example.po.OrderPO;
 import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
 import java.util.List;
@@ -137,13 +138,32 @@ public interface OrderMapper {
     })
     int updatePayData(@Param("orderId") String orderId, @Param("data") Map<String, Object> data);
 
-    int sumOrderPrice(int index, long todayTimestamp, long yesTimestamp, long sevenTimestamp, long thirtyTimestamp);
+    int sumOrderPrice(@Param("beginTimeStamp") long beginTimeStamp, @Param("endTimeStamp") long endTimeStamp);
 
-    int countNewOrders(int index, long todayTimestamp, long yesTimestamp, long sevenTimestamp, long thirtyTimestamp);
+    int countNewOrders(@Param("beginTimeStamp") long beginTimeStamp, @Param("endTimeStamp") long endTimeStamp);
 
-    int countPaidOrders(int index, long todayTimestamp, long yesTimestamp, long sevenTimestamp, long thirtyTimestamp);
+    int countPaidOrders(@Param("beginTimeStamp") long beginTimeStamp, @Param("endTimeStamp") long endTimeStamp);
 
-    int sumPaidOrderPrice(int index, long todayTimestamp, long yesTimestamp, long sevenTimestamp, long thirtyTimestamp);
+    int sumPaidOrderPrice(@Param("beginTimeStamp") long beginTimeStamp, @Param("endTimeStamp") long endTimeStamp);
 
     int countToDelivery();
+
+    @Select("select * from orders where order_sn=#{orderSn} and consignee=#{consignee} and order_status=#{status} LIMIT #{page}, #{size}")
+    List<OrderPO> findOrdersInfo(@Param("orderSn") String orderSn, @Param("consignee") String consignee, @Param("status") String status, @Param("page") int page, @Param("size") int size);
+
+    boolean getAutoStatus();
+
+    List<OrderPO> findDeliveryOrders(int page, int size, String status);
+
+    String getOrderBtnText(String id);
+
+    List<Map<String, Object>> getGoodsSpecification(Long goodsId);
+
+    void decrementOrderPrice(String orderId, double changePrice);
+
+    void incrementOrderPrice(String orderId, double changePrice);
+
+    void updateOrderSn(String orderId, String orderSn);
+
+    boolean updateAdminMemo(String id, String text);
 }

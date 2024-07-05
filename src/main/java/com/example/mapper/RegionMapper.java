@@ -20,6 +20,10 @@ public interface RegionMapper {
     @Select("SELECT id,name FROM region WHERE id in #{regionId}")
     Map<String, String> getManyRegionNameById(@Param("regionId") List<String> regionId);
 
+    @Select("select * from region")
+    List<RegionPO> findAll();
+
+
 //    @Select("SELECT id FROM region WHERE name = #{name}")
 //    Long getIdByName(@Param("name") Long name);
 

@@ -24,8 +24,8 @@ public interface UserMapper {
     int countUsers();
 
     @Select("SELECT * FROM user WHERE register_time > #{timestamp}")
-    List<UserPO> findNewUsers(int index, long todayTimestamp, long yesTimestamp, long sevenTimestamp, long thirtyTimestamp);
+    List<UserPO> findNewUsers(@Param("beginTimeStamp") long beginTimeStamp, @Param("endTimeStamp") long endTimeStamp);
 
     @Select("SELECT COUNT(*) FROM user WHERE register_time < #{timestamp} AND last_login_time > #{timestamp}")
-    int countOldUsers(int index, long todayTimestamp, long yesTimestamp, long sevenTimestamp, long thirtyTimestamp);
+    int countOldUsers(@Param("beginTimeStamp") long beginTimeStamp, @Param("endTimeStamp") long endTimeStamp);
 }

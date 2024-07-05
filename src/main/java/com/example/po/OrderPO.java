@@ -4,6 +4,8 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @Data
 public class OrderPO {
@@ -17,10 +19,10 @@ public class OrderPO {
     private boolean printStatus; // 打印状态
     private int payStatus; // 支付状态
     private String consignee; // 收货人
-    private int country; // 国家
-    private int province; // 省份
-    private int city; // 城市
-    private int district; // 区域
+    private String country; // 国家
+    private String province; // 省份
+    private String city; // 城市
+    private String district; // 区域
     private String address; // 收货地址
     private String printInfo; // 打印信息
     private String mobile; // 联系电话
@@ -43,4 +45,17 @@ public class OrderPO {
     private String remark; // 备注
     private int orderType; // 订单类型
     private int isDelete; // 删除标志
+
+    private List<OrderGoodsPO> goodsList; // @Transient
+    private Integer goodsCount; // @Transient
+    private String orderStatusText; // @Transient
+    private Map<String, Boolean> handleOption; // @Transient
+    private String provinceName; // @Transient
+    private String cityName; // @Transient
+    private String districtName; // @Transient
+    private String fullRegion; // @Transient
+    private Long finalPayTime; // @Transient
+    private UserPO userInfo; // @Transient
+    private String expressInfo; // @Transient
+    private String buttonText; // @Transient
 }

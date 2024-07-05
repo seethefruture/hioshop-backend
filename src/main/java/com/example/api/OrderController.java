@@ -169,11 +169,6 @@ public class OrderController {
         return orderService.saveRemarkInfo(id, remark);
     }
 
-    @GetMapping("/detail")
-    public Map<String, Object> getOrderDetail(@RequestParam Long orderId) {
-        return orderService.getOrderDetail(orderId);
-    }
-
     @GetMapping("/getAllRegion")
     public List<RegionPO> getAllRegion() {
         return orderService.getAllRegion();

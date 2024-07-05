@@ -46,41 +46,7 @@ public class ProductService {
         return infoData;
     }
 
-    public Map<String, Object> getAllSpecifications() {
-        List<Map<String, Object>> specOptionsData = new ArrayList<>();
-        List<GoodsSpecificationPO> specInfo = goodsSpecificationMapper.findAll();
-        for (GoodsSpecificationPO spitem : specInfo) {
-            Map<String, Object> info = new HashMap<>();
-            info.put("value", spitem.getId());
-            info.put("label", spitem.getName());
-            specOptionsData.add(info);
-        }
-        return Collections.singletonMap("specifications", specOptionsData);
-    }
 
-    public Map<String, Object> getAllCategory1() {
-        List<Map<String, Object>> newData = new ArrayList<>();
-        List<GoodsPO> level1Categories = goodsMapper.findCategoriesByLevelAndParentId();
-        List<GoodsPO> level2Categories = goodsMapper.findLevel2Categories();
-
-        for (GoodsPO item : level1Categories) {
-            List<Map<String, Object>> children = new ArrayList<>();
-            for (GoodsPO citem : level2Categories) {
-                if (citem.getParentId().equals(item.getId())) {
-                    Map<String, Object> child = new HashMap<>();
-                    child.put("value", citem.getId());
-                    child.put("label", citem.getName());
-                    children.add(child);
-                }
-            }
-            Map<String, Object> category = new HashMap<>();
-            category.put("value", item.getId());
-            category.put("label", item.getName());
-            category.put("children", children);
-            newData.add(category);
-        }
-        return Collections.singletonMap("categories", newData);
-    }
 
     public Map<String, Object> getAllCategories() {
         List<Map<String, Object>> newData = new ArrayList<>();

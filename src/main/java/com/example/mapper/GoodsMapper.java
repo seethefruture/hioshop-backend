@@ -77,5 +77,5 @@ public interface GoodsMapper {
     void updateStore(@Param("categoryId") String categoryId, @Param("isIndex") Boolean isIndex, @Param("isNew") Boolean isNew, @Param("id") String id);
 
     @Update("update goods set goods_number=#{goodsNum},retail_price =#{goodsPrice},cost_price=#{costPrice},min_retail_price=#{minPrice},min_cost_price=#{minCost} where id=#{goodsId}")
-    void updateGoodsPrices(@Param("goodsId") String goodsId, @Param("goodsNum") Long goodsNum, @Param("goodsPrice") BigDecimal goodsPrice, @Param("costPrice") BigDecimal costPrice, @Param("minPrice") BigDecimal minPrice, @Param("minCost") BigDecimal minCost);
+    void updateGoodsPrices(@Param("goodsId") String goodsId, @Param("goodsNum") Integer goodsNum, @Param("goodsPrice") Long goodsPrice, @Param("costPrice") Long costPrice, @Param("minPrice") Long minPrice, @Param("minCost") Long minCost);
 }

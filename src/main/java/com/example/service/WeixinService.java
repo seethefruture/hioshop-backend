@@ -161,7 +161,7 @@ public class WeixinService {
     public void receiveAction(Map<String, Object> payload) {
         UserPO user = new UserPO();
         user.setName("9");
-        user.setRuleContent("哈哈");
+//        user.setRuleContent("哈哈");
         userMapper.insert(user);
     }
 

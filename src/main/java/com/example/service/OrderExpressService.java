@@ -16,7 +16,7 @@ public class OrderExpressService {
         returnExpressInfo.setShipperCode("");
         returnExpressInfo.setShipperName("");
         returnExpressInfo.setLogisticCode("");
-        returnExpressInfo.setFinish(false);
+        returnExpressInfo.setIsFinish(false);
         returnExpressInfo.setRequestTime(0);
         returnExpressInfo.setTraces("");
 
@@ -28,11 +28,11 @@ public class OrderExpressService {
         returnExpressInfo.setShipperCode(orderExpress.getShipperCode());
         returnExpressInfo.setShipperName(orderExpress.getShipperName());
         returnExpressInfo.setLogisticCode(orderExpress.getLogisticCode());
-        returnExpressInfo.setFinish(orderExpress.isFinish());
+        returnExpressInfo.setIsFinish(orderExpress.getIsFinish());
         returnExpressInfo.setRequestTime(orderExpress.getRequestTime() * 1000);
         returnExpressInfo.setTraces(orderExpress.getTraces() == null ? "" : orderExpress.getTraces());
 
-        if (orderExpress.isFinish()) {
+        if (orderExpress.getIsFinish()) {
             return returnExpressInfo;
         }
 

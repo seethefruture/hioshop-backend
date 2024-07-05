@@ -2,6 +2,9 @@ package com.example.po;
 
 import lombok.Data;
 
+import java.beans.Transient;
+import java.util.List;
+
 @Data
 public class CategoryPO {
     private String id; // 主键ID
@@ -19,4 +22,6 @@ public class CategoryPO {
     private int pHeight; // 高度
     private boolean isCategory; // 是否为类别
     private boolean isChannel; // 是否为频道
+
+    private List<GoodsPO> goodsList; //@Transient
 }

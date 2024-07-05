@@ -16,4 +16,15 @@ public interface OrderGoodsMapper {
             "        AND order_id = #{orderId}\n" +
             "        AND is_delete = #{isDelete}")
     List<OrderGoodsPO> findOrderGoods(@Param("userId") String userId, @Param("orderId") String orderId, @Param("isDelete") Boolean isDelete);
+
+    @Select("select * from order_goods where order_id = #{orderId}")
+    List<OrderGoodsPO> findByOrderId(@Param("goodsId") String goodsId);
+
+    List<OrderGoodsPO> findGoodsByOrderId(String id);
+
+    void decrementNumber(String id, int number);
+
+    void incrementNumber(String id, int number);
+
+    void delete(String id);
 }

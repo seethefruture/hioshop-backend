@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import com.example.po.ProductPO;
 import com.example.po.SpecificationPO;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -90,7 +89,7 @@ public class GoodsService {
             for (ProductPO product : specData) {
                 String productId = product.getId();
                 if (StrUtil.isNotEmpty(productId)) {
-                    product.setDelete(false);
+                    product.setIsDelete(false);
                     productMapper.deleteByGoodsId(goodsId);
                     goodsSpecificationMapper.updateGoodsSpecification(product.getValue(), specValue, product.getGoodsSpecificationIds());
                 } else {
@@ -123,7 +122,7 @@ public class GoodsService {
                 goodsSpecificationMapper.insert(goodsSpecificationPO);
                 product.setGoodsSpecificationIds(goodsSpecificationId);
                 product.setGoodsId(goodsId);
-                product.setOnSale(false);
+                product.setIsOnSale(false);
                 productMapper.insert(product);
             }
 
@@ -136,13 +135,13 @@ public class GoodsService {
         List<ProductPO> products = productMapper.findOnSaleProductsByGoodsId(goodsId);
         if (CollUtil.isNotEmpty(products)) {
             Integer goodsNum = productMapper.sumGoodsNumberByGoodsId(goodsId);
-            List<BigDecimal> retailPrices = productMapper.findProductsByGoodsId(goodsId).stream().map(ProductPO::getRetailPrice).collect(Collectors.toList());
-            List<BigDecimal> costs = productMapper.findProductsByGoodsId(goodsId).stream().map(ProductPO::getCost).collect(Collectors.toList());
+            List<Long> retailPrices = productMapper.findProductsByGoodsId(goodsId).stream().map(ProductPO::getRetailPrice).collect(Collectors.toList());
+            List<Long> costs = productMapper.findProductsByGoodsId(goodsId).stream().map(ProductPO::getCost).collect(Collectors.toList());
 
 //            BigDecimal maxPrice = retailPrices.stream().max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
-            BigDecimal minPrice = retailPrices.stream().min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+            Long minPrice = retailPrices.stream().min(Long::compareTo).orElse(0L);
 //            BigDecimal maxCost = costs.stream().max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
-            BigDecimal minCost = costs.stream().min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+            Long minCost = costs.stream().min(Long::compareTo).orElse(0L);
 
             goodsMapper.updateGoodsPrices(goodsId, goodsNum, minPrice, minCost, minPrice, minCost);
         } else {
@@ -153,7 +152,7 @@ public class GoodsService {
 
     public Map<String, Object> getGoodsDetail(String goodsId, String userId) {
         GoodsPO info = goodsMapper.findById(goodsId);
-        if (info == null || info.isDelete()) {
+        if (info == null || info.getIsDelete()) {
             return null;
         }
         List<GoodsGalleryPO> gallery = goodsGalleryMapper.selectByGoodsId(goodsId);
@@ -166,7 +165,7 @@ public class GoodsService {
         result.put("gallery", gallery);
         result.put("specificationList", specificationList);
         result.put("productList", productList);
-        footprintMapper.insert(new FootprintPO(userId, goodsId));
+        footprintMapper.insert(new FootprintPO(MySnowFlakeGenerator.next(), userId, goodsId));
         return result;
     }
 
@@ -180,7 +179,7 @@ public class GoodsService {
         params.put("isDelete", 0);
         if (keyword != null && !keyword.isEmpty()) {
             params.put("keyword", "%" + keyword + "%");
-            searchHistoryMapper.insert(new SearchHistoryPO(userId, keyword, System.currentTimeMillis() / 1000));
+            searchHistoryMapper.insert(new SearchHistoryPO(MySnowFlakeGenerator.next(), keyword, "", System.currentTimeMillis(), userId));
         }
 
         if ("price".equals(sort)) {
@@ -214,7 +213,7 @@ public class GoodsService {
         GoodsPO data = goodsMapper.findById(goodsId);
         String insertId = MySnowFlakeGenerator.next();
         data.setId(insertId);
-        data.setOnSale(false);
+        data.setIsOnSale(false);
         goodsMapper.insert(data);
 
         List<GoodsGalleryPO> goodsGallery = goodsGalleryMapper.findByGoodsId(goodsId);
